@@ -1,0 +1,14 @@
+{
+  "name": "住得明白｜AI 租屋分析",
+  "short_name": "住得明白",
+  "description": "以自己的 API Key 分析租屋物件，主觀感受與客觀分析分開保存。",
+  "lang": "zh-Hant",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fbfbf7",
+  "theme_color": "#173c37",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "ai-rental-property-analyzer",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node dev-server.js"
+  }
+}

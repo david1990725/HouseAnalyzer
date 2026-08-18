@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>住得明白｜租屋物件分析</title>
+    <meta name="theme-color" content="#173c37" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="pwa.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <a class="brand" href="#top"><span class="brand-mark">住</span><span>住得明白</span></a>
+      <nav>
+        <a class="nav-link active" href="#overview"><span>⌂</span>我的物件</a>
+        <a class="nav-link" href="#compare"><span>⇄</span>比較物件</a>
+        <button class="nav-link nav-button" id="open-settings"><span>⚙</span>AI 設定</button>
+      </nav>
+      <div class="sidebar-bottom"><div class="privacy-dot"></div><p>主觀意見不會送入 AI 分析</p><small>Local-first prototype</small></div>
+    </aside>
+    <main id="top">
+      <header class="topbar"><button class="back" aria-label="返回物件列表">‹</button><div><p class="eyebrow">我的物件 / 新北市淡水區</p><h1>晴海</h1></div><div class="top-actions"><button class="icon-button" aria-label="更多選項">•••</button><button class="outline-button">匯出報告 ↗</button></div></header>
+
+      <section class="hero" id="overview">
+        <div class="hero-copy"><p class="tag">AI RENTAL PROPERTY ANALYZER</p><h2>先看客觀條件，<br /><em>再做自己的決定。</em></h2><p class="hero-description">把物件條件、未來變數與你的生活情境拆開看，讓租屋選擇更清楚。</p><div class="property-meta"><span>電梯大樓</span><i></i><span>32 坪</span><i></i><span>3 房 2 廳 2 衛</span><i></i><span>8 / 15 樓</span></div></div>
+        <div class="hero-stat"><div class="score-orb"><span>8.2</span><small>/ 10</small></div><p>AI 客觀評價</p><strong>值得考慮</strong><span class="updated">剛剛完成分析</span></div>
+      </section>
+
+      <section class="objective-notice"><span class="notice-icon">✦</span><div><strong>這是獨立的客觀分析</strong><p>AI 僅根據物件資料與公開資訊評估，不會讀取你的喜好或看房心得。</p></div><button id="edit-property" class="text-button">編輯客觀資料</button></section>
+
+      <section class="analysis-runner" id="analyze">
+        <div><p class="eyebrow">BYOK AI ANALYSIS</p><h2>準備好後，開始客觀分析</h2><p>填入或確認物件客觀資料，接著使用你的 OpenAI API Key 分析。你的「我的感受」不會送出。</p></div>
+        <div class="runner-actions"><span id="api-state">尚未設定 API Key</span><button class="primary-button" id="run-analysis">用 AI 重新分析</button></div>
+        <p class="analysis-status" id="analysis-status" aria-live="polite"></p>
+      </section>
+
+      <section class="summary-grid">
+        <article class="summary-card"><span class="card-label">一句話總評</span><p>生活機能與空間表現亮眼，<br />但需以捷運距離換取居住品質。</p></article>
+        <article class="summary-card"><span class="card-label">月租與費用</span><p class="rent">$21,500 <small>/ 月</small></p><span class="subtle">含管理費・含車位・可申請租補</span></article>
+        <article class="summary-card"><span class="card-label">最大取捨</span><p>用較遠的捷運距離，<br />換取更大空間與公園生活。</p></article>
+      </section>
+
+      <section class="section-header"><div><p class="eyebrow">OBJECTIVE SCORE</p><h2>現在，住起來怎麼樣？</h2></div><p>以公開資料與物件條件分析</p></section>
+      <section class="score-grid">
+        <article class="score-card"><div><span class="score-icon">⌁</span><span class="score-value">8.5</span></div><h3>交通</h3><p>公車選擇多，但步行至捷運站約 15 分鐘。</p><div class="meter"><b style="width:85%"></b></div></article>
+        <article class="score-card"><div><span class="score-icon">▦</span><span class="score-value">8.0</span></div><h3>學區</h3><p>學校與托育資源完善，實際分發仍須確認。</p><div class="meter"><b style="width:80%"></b></div></article>
+        <article class="score-card"><div><span class="score-icon">⌂</span><span class="score-value">7.0</span></div><h3>空間／屋況</h3><p>格局方正、空間充足，部分設備較有年紀。</p><div class="meter"><b style="width:70%"></b></div></article>
+        <article class="score-card"><div><span class="score-icon">✳</span><span class="score-value">9.0</span></div><h3>周邊環境</h3><p>公園、採買與日常機能都在舒適距離內。</p><div class="meter"><b style="width:90%"></b></div></article>
+      </section>
+
+      <section class="insight-layout">
+        <div class="findings"><section class="section-header compact"><div><p class="eyebrow">RIGHT NOW</p><h2>已經擁有的，與要接受的</h2></div></section><div class="two-column"><article class="finding positive"><header><span>↗</span><h3>現在的優勢</h3></header><ul><li>32 坪三房，家庭居住空間充足</li><li>步行可達公園、市場與超商</li><li>社區有管理，公共區域整潔</li></ul></article><article class="finding negative"><header><span>↘</span><h3>現在的問題</h3></header><ul><li>離捷運站較遠，通勤需預留時間</li><li>冷氣與部分家電使用年限較長</li><li>租金加車位後，支出相對偏高</li></ul></article></div></div>
+        <aside class="tradeoff"><p class="eyebrow">THE CORE TRADE-OFF</p><span class="trade-icon">⚖</span><h3>最大的交換條件</h3><p>你用較遠的捷運距離，換取較大的居住空間、完整家庭機能與公園生活。</p><div><span>得到</span><strong>空間 · 環境 · 機能</strong></div><div><span>犧牲</span><strong>通勤便利 · 部分設備新穎度</strong></div></aside>
+      </section>
+
+      <section class="future" id="swot"><div class="future-heading"><p class="eyebrow">LOOKING AHEAD</p><h2>未來，可能怎麼變？</h2><p>以下將已知事實與合理推論清楚分開。</p></div><div class="future-cards"><article><div class="future-title"><span>↗</span><h3>可能的機會</h3></div><p>周邊公共建設逐步到位，長期生活機能可能持續提升。</p><span class="confidence likely">LIKELY・高度可能</span></article><article><div class="future-title"><span>!</span><h3>需要留意的風險</h3></div><p>設備持續老化可能增加維修溝通與居住成本；周邊建設期間也可能有噪音。</p><span class="confidence possible">POSSIBLE・合理可能</span></article></div><p class="plain-language"><span>白話解讀</span>現在能享受相對成熟、安靜的家庭生活；往後機能有望變好，但需要保留對設備與施工影響的彈性。</p></section>
+
+      <section class="fit-section"><div class="fit-heading"><p class="eyebrow">LIVING SCENARIOS</p><h2>這間房子，適合誰？</h2></div><div class="fit-grid"><article><span>很適合</span><h3>重視家庭生活品質的人</h3><p>有小孩、需要三房空間、喜歡步行到公園與日常採買的人。</p></article><article><span>比較不適合</span><h3>高度依賴捷運通勤的人</h3><p>每日需快速轉乘，或對全新設備與維修零容忍的人。</p></article></div></section>
+
+      <section class="personal"><div><p class="eyebrow">YOUR PERSPECTIVE</p><h2>這是你的感覺，<em>不會影響 AI 評分。</em></h2><p>記下看房後的直覺與在意之處，協助你最後做出自己的決定。</p></div><div class="personal-score"><span>我的喜好</span><button class="hearts" id="heart-rating" aria-label="設定主觀喜好分數">♡ ♡ ♡ ♡ ♡</button><small id="rating-label">尚未評分</small></div><textarea id="personal-note" placeholder="例如：客廳採光比照片好，但廚房收納稍不足…"></textarea><div class="personal-actions"><button class="outline-button" id="save-note">儲存我的想法</button><span id="save-status" aria-live="polite"></span></div></section>
+
+      <section class="decision"><div><p class="eyebrow">FINAL DECISION</p><h2>你的最終決定，由你決定。</h2><p>AI 提供客觀參考；喜好、預算與生活優先順序，仍然是你的選擇。</p></div><div class="decision-options" id="decision-options"><button data-choice="優先考慮">優先考慮</button><button data-choice="值得議價">值得議價</button><button data-choice="繼續觀察">繼續觀察</button><button data-choice="淘汰">淘汰</button></div></section>
+      <footer>住得明白 · 本原型不會儲存 API Key 或連線至外部資料來源。</footer>
+    </main>
+    <dialog id="property-dialog"><form id="objective-form"><button class="dialog-close" type="button" aria-label="關閉">×</button><p class="eyebrow">OBJECTIVE DATA ONLY</p><h2>物件客觀資料</h2><p>只有這些資料會傳送給 AI。你的主觀心得將維持在瀏覽器內。</p><div class="form-grid"><label>物件名稱<input name="name" value="晴海" required /></label><label>物件型態<input name="type" value="電梯大樓" required /></label><label class="wide">完整地址<input name="address" value="251新北市淡水區崁頂里新市一路一段331巷96號" required /></label><label>月租（元）<input name="rent" type="number" value="21500" min="0" required /></label><label>坪數<input name="size" placeholder="例如：22" /></label><label>格局<input name="layout" value="兩房" /></label><label>屋齡<input name="age" value="約 10 年" /></label><label>管理費<input name="managementFee" value="包含" /></label><label>停車費<input name="parkingFee" value="包含" /></label><label>租屋補貼<input name="subsidy" value="可申請" /></label><label class="wide">客觀設備／屋況<textarea name="condition">電梯、車位、天然瓦斯、社區物業管理；冷氣兩台與洗碗槽鏽蝕由房東修繕；無洗衣機。</textarea></label><label class="wide">公開連結或其他可驗證資訊<textarea name="evidence">https://e.houseflow.tw/9gn8e3</textarea></label></div><button class="primary-button">儲存客觀資料</button></form></dialog>
+    <dialog id="settings-dialog"><form id="settings-form"><button class="dialog-close" type="button" aria-label="關閉">×</button><p class="eyebrow">YOUR OPENAI ACCOUNT</p><h2>AI 設定</h2><p>API Key 只暫存於本次瀏覽器工作階段，並在分析時直接送到 OpenAI；本站不會保存它。</p><label>OpenAI API Key<input name="apiKey" type="password" autocomplete="off" placeholder="sk-..." required /></label><label>模型<input name="model" value="gpt-5.4-nano" required /></label><p class="field-help">請使用可支援 Structured Outputs 的模型。API 使用費由你的 OpenAI 帳戶計費。</p><button class="primary-button">儲存本次設定</button></form></dialog>
+    <script src="app.js"></script>
+  </body>
+</html>
