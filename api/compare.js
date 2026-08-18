@@ -396,22 +396,40 @@ async function callOpenAI({ apiKey, model, baseUrl, systemPrompt, userContent })
   throw new Error('OpenAI 回傳格式不符合預期。');
 }
 
+// 轉換為 Gemini 相容的 Schema（移除 Gemini 不支援的 additionalProperties, minItems, maxItems, minimum, maximum 等欄位）
+function toGeminiSchema(schema) {
+  if (!schema || typeof schema !== 'object') return schema;
+  if (Array.isArray(schema)) return schema.map(toGeminiSchema);
+
+  const clean = {};
+  for (const [key, value] of Object.entries(schema)) {
+    if (['additionalProperties', 'minItems', 'maxItems', 'minimum', 'maximum'].includes(key)) {
+      continue;
+    }
+    clean[key] = toGeminiSchema(value);
+  }
+  return clean;
+}
+
 // --- Google Gemini 適配器 ---
 async function callGemini({ apiKey, model, baseUrl, systemPrompt, userContent }) {
-  const targetModel = model || 'gemini-2.5-flash';
+  const targetModel = model || 'gemini-3.6-flash';
   const base = baseUrl || 'https://generativelanguage.googleapis.com';
   const url = new URL(`${base}/v1beta/models/${targetModel}:generateContent?key=${apiKey}`);
 
   const payload = {
+    system_instruction: {
+      parts: [{ text: systemPrompt }],
+    },
     contents: [
       {
         role: 'user',
-        parts: [{ text: `${systemPrompt}\n\n${userContent}` }],
+        parts: [{ text: userContent }],
       },
     ],
     generationConfig: {
       responseMimeType: 'application/json',
-      responseSchema: COMPARE_SCHEMA,
+      responseSchema: toGeminiSchema(COMPARE_SCHEMA),
       temperature: 0.2,
     },
   };

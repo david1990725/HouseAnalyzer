@@ -922,9 +922,9 @@ function updateProviderFormDisplay(provider) {
   } else if (provider === 'gemini') {
     baseUrlLabel.style.display = 'none';
     apiKeyLabel.style.display = 'block';
-    apiKeyHelp.textContent = '請填寫 Google AI Studio API Key (推薦最新穩定版 gemini-2.5-flash 或旗艦 gemini-2.5-pro)。';
-    if (!modelInput.value || modelInput.value.startsWith('gpt-') || modelInput.value.startsWith('claude') || modelInput.value === 'llama3.1' || modelInput.value === 'gemini-2.0-flash' || modelInput.value === 'gemini-1.5-flash' || modelInput.value === 'gemini-1.5-pro') {
-      modelInput.value = 'gemini-2.5-flash';
+    apiKeyHelp.textContent = '請填寫 Google AI Studio API Key (推薦最新 gemini-3.6-flash 或 gemini-3.5-flash)。';
+    if (!modelInput.value || modelInput.value.startsWith('gpt-') || modelInput.value.startsWith('claude') || modelInput.value === 'llama3.1' || modelInput.value.startsWith('gemini-2.') || modelInput.value.startsWith('gemini-1.')) {
+      modelInput.value = 'gemini-3.6-flash';
     }
   } else if (provider === 'claude') {
     baseUrlLabel.style.display = 'none';
