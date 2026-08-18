@@ -313,6 +313,7 @@ function sendJsonRequest(options, postData) {
     const client = isHttps ? https : http;
 
     const req = client.request(options, (res) => {
+      res.setEncoding('utf8');
       let body = '';
       res.on('data', (chunk) => (body += chunk));
       res.on('end', () => {
@@ -337,7 +338,7 @@ function sendJsonRequest(options, postData) {
     req.on('error', (err) => reject(err));
     req.on('timeout', () => {
       req.destroy();
-      reject(new Error('AI 請求逾時（超過 60 秒）'));
+      reject(new Error('AI 模型運算逾時（超過 150 秒），請確認網路連線或更換模型後再試。'));
     });
 
     if (postData) {
@@ -381,7 +382,7 @@ async function callOpenAI({ apiKey, model, baseUrl, systemPrompt, userContent })
         'Content-Type': 'application/json',
         Authorization: `Bearer ${apiKey}`,
       },
-      timeout: 65000,
+      timeout: 150000,
     },
     payload
   );
@@ -413,38 +414,53 @@ function toGeminiSchema(schema) {
 
 // --- Google Gemini 適配器 ---
 async function callGemini({ apiKey, model, baseUrl, systemPrompt, userContent }) {
-  const targetModel = model || 'gemini-3.6-flash';
+  const rawModel = (model || 'gemini-3.6-flash').replace(/^models\//i, '').replace(/^\/+/, '').trim();
   const base = baseUrl || 'https://generativelanguage.googleapis.com';
-  const url = new URL(`${base}/v1beta/models/${targetModel}:generateContent?key=${apiKey}`);
 
-  const payload = {
-    system_instruction: {
-      parts: [{ text: systemPrompt }],
-    },
-    contents: [
-      {
-        role: 'user',
-        parts: [{ text: userContent }],
+  const sendGemini = async (targetModel) => {
+    const url = new URL(`${base}/v1beta/models/${targetModel}:generateContent?key=${apiKey}`);
+    const payload = {
+      system_instruction: {
+        parts: [{ text: systemPrompt }],
       },
-    ],
-    generationConfig: {
-      responseMimeType: 'application/json',
-      responseSchema: toGeminiSchema(COMPARE_SCHEMA),
-      temperature: 0.2,
-    },
+      contents: [
+        {
+          role: 'user',
+          parts: [{ text: userContent }],
+        },
+      ],
+      generationConfig: {
+        responseMimeType: 'application/json',
+        responseSchema: toGeminiSchema(COMPARE_SCHEMA),
+        temperature: 0.2,
+      },
+    };
+
+    return await sendJsonRequest(
+      {
+        hostname: url.hostname,
+        port: url.port || (url.protocol === 'https:' ? 443 : 80),
+        path: `${url.pathname}${url.search}`,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        timeout: 150000,
+      },
+      payload
+    );
   };
 
-  const response = await sendJsonRequest(
-    {
-      hostname: url.hostname,
-      port: url.port || (url.protocol === 'https:' ? 443 : 80),
-      path: `${url.pathname}${url.search}`,
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      timeout: 65000,
-    },
-    payload
-  );
+  let response;
+  try {
+    response = await sendGemini(rawModel);
+  } catch (err) {
+    // 若遇到 Google 官方暫時性尖峰壅塞 (High Demand 503/429)，自動降級嘗試 gemini-3.5-flash
+    if (err.message && err.message.includes('high demand') && rawModel !== 'gemini-3.5-flash') {
+      console.warn(`[Gemini Warn]: ${rawModel} 尖峰壅塞，自動降級重試 gemini-3.5-flash...`);
+      response = await sendGemini('gemini-3.5-flash');
+    } else {
+      throw err;
+    }
+  }
 
   const text = response.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!text) throw new Error('Gemini 未回傳有效分析內容。');
@@ -481,7 +497,7 @@ async function callClaude({ apiKey, model, baseUrl, systemPrompt, userContent })
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
       },
-      timeout: 65000,
+      timeout: 150000,
     },
     payload
   );

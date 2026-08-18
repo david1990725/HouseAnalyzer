@@ -32,6 +32,7 @@ function stripHtml(str) {
 const STORAGE_KEYS = {
   HOUSEHOLD: 'house_analyzer_household',
   PROPERTIES: 'house_analyzer_properties',
+  REPORTS: 'house_analyzer_reports_v1',
   PROVIDER: 'house_analyzer_provider',
   MODEL: 'house_analyzer_model',
   BASE_URL: 'house_analyzer_baseurl',
@@ -225,6 +226,38 @@ const PropertyStore = {
   },
 };
 
+const ReportStore = {
+  getAll() {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.REPORTS);
+      return data ? JSON.parse(data) : [];
+    } catch {
+      return [];
+    }
+  },
+  getById(id) {
+    return this.getAll().find((r) => r.id === id) || null;
+  },
+  save(report) {
+    const list = this.getAll();
+    const existingIndex = list.findIndex((r) => r.id === report.id);
+    if (existingIndex >= 0) {
+      list[existingIndex] = report;
+    } else {
+      list.unshift(report);
+    }
+    localStorage.setItem(STORAGE_KEYS.REPORTS, JSON.stringify(list));
+    return report;
+  },
+  delete(id) {
+    const list = this.getAll().filter((r) => r.id !== id);
+    localStorage.setItem(STORAGE_KEYS.REPORTS, JSON.stringify(list));
+  },
+  clearAll() {
+    localStorage.removeItem(STORAGE_KEYS.REPORTS);
+  },
+};
+
 const SettingsStore = {
   get() {
     return {
@@ -247,6 +280,7 @@ const SettingsStore = {
   clearAll() {
     localStorage.removeItem(STORAGE_KEYS.PROPERTIES);
     localStorage.removeItem(STORAGE_KEYS.HOUSEHOLD);
+    localStorage.removeItem(STORAGE_KEYS.REPORTS);
     localStorage.removeItem(STORAGE_KEYS.PROVIDER);
     localStorage.removeItem(STORAGE_KEYS.MODEL);
     localStorage.removeItem(STORAGE_KEYS.BASE_URL);
@@ -254,6 +288,7 @@ const SettingsStore = {
     sessionStorage.removeItem(STORAGE_KEYS.API_KEY);
     PropertyStore.saveAll([]);
     HouseholdStore.save(EMPTY_HOUSEHOLD);
+    ReportStore.clearAll();
   },
 };
 
@@ -261,27 +296,38 @@ const SettingsStore = {
 // 3. 全域應用程式狀態 (State)
 // ==========================================
 const State = {
-  currentView: 'home', // 'home' | 'list' | 'compare'
+  currentView: 'home', // 'home' | 'list' | 'reports' | 'compare'
   selectedPropertyIds: new Set(),
   lastComparisonResult: null,
+  lastComparisonContext: null,
+  viewingSavedReportId: null,
+  previousView: 'list',
 };
 
 // ==========================================
 // 4. 視圖導航切換 (View Navigation)
 // ==========================================
 function switchView(viewName) {
+  if (State.currentView !== 'compare') {
+    State.previousView = State.currentView;
+  }
   State.currentView = viewName;
+
   const homeSec = document.getElementById('view-home');
   const listSec = document.getElementById('view-list');
+  const reportsSec = document.getElementById('view-reports');
   const compSec = document.getElementById('view-compare');
   const topHeading = document.getElementById('topbar-heading');
   const topActions = document.getElementById('topbar-actions');
+  const topEyebrow = document.getElementById('topbar-eyebrow');
   const navHomeBtn = document.getElementById('nav-home-btn');
   const navListBtn = document.getElementById('nav-list-btn');
+  const navReportsBtn = document.getElementById('nav-reports-btn');
 
   // 重設所有導覽狀態
   if (navHomeBtn) navHomeBtn.classList.remove('active');
   if (navListBtn) navListBtn.classList.remove('active');
+  if (navReportsBtn) navReportsBtn.classList.remove('active');
   if (homeSec) {
     homeSec.classList.remove('active');
     homeSec.style.display = 'none';
@@ -289,6 +335,10 @@ function switchView(viewName) {
   if (listSec) {
     listSec.classList.remove('active');
     listSec.style.display = 'none';
+  }
+  if (reportsSec) {
+    reportsSec.classList.remove('active');
+    reportsSec.style.display = 'none';
   }
   if (compSec) {
     compSec.classList.remove('active');
@@ -309,10 +359,23 @@ function switchView(viewName) {
       listSec.classList.add('active');
       listSec.style.display = 'block';
     }
-    topHeading.textContent = '我的租屋物件';
-    topActions.style.display = 'flex';
+    if (topEyebrow) topEyebrow.textContent = 'AI RENTAL PROPERTY COMPARATOR';
+    if (topHeading) topHeading.textContent = '我的租屋物件';
+    if (topActions) topActions.style.display = 'flex';
     if (navListBtn) navListBtn.classList.add('active');
     renderPropertyList();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else if (viewName === 'reports') {
+    document.body.classList.remove('is-home-view');
+    if (reportsSec) {
+      reportsSec.classList.add('active');
+      reportsSec.style.display = 'block';
+    }
+    if (topEyebrow) topEyebrow.textContent = 'SAVED AI COMPARISON REPORTS';
+    if (topHeading) topHeading.textContent = '歷史分析結果';
+    if (topActions) topActions.style.display = 'none';
+    if (navReportsBtn) navReportsBtn.classList.add('active');
+    renderReportList();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   } else if (viewName === 'compare') {
     document.body.classList.remove('is-home-view');
@@ -320,8 +383,9 @@ function switchView(viewName) {
       compSec.classList.add('active');
       compSec.style.display = 'block';
     }
-    topHeading.textContent = 'AI 租屋橫向比較報告';
-    topActions.style.display = 'none';
+    if (topEyebrow) topEyebrow.textContent = 'AI COMPARATIVE DECISION REPORT';
+    if (topHeading) topHeading.textContent = 'AI 租屋橫向比較報告';
+    if (topActions) topActions.style.display = 'none';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
@@ -887,6 +951,43 @@ function setStarRating(val) {
   if (label) label.textContent = texts[val] || `${val} 星`;
 }
 
+// AI 供應商支援模型列舉清單
+const PROVIDER_MODELS = {
+  gemini: [
+    { value: 'gemini-3.6-flash', label: 'Gemini 3.6 Flash (推薦，最新主力快速)' },
+    { value: 'gemini-3.5-flash', label: 'Gemini 3.5 Flash (極速穩定)' },
+    { value: 'gemini-3.5-flash-lite', label: 'Gemini 3.5 Flash Lite (超輕量低延遲)' },
+    { value: 'gemini-3.1-flash-lite', label: 'Gemini 3.1 Flash Lite (輕量穩定)' },
+    { value: 'gemini-3.1-pro-preview', label: 'Gemini 3.1 Pro Preview (旗艦深度推理)' },
+    { value: '__custom__', label: '自訂其他 Gemini 模型...' },
+  ],
+  openai: [
+    { value: 'gpt-4o-mini', label: 'GPT-4o mini (推薦，經濟穩定)' },
+    { value: 'gpt-4o', label: 'GPT-4o (旗艦全方位智慧)' },
+    { value: 'o3-mini', label: 'o3-mini (高強度邏輯推理)' },
+    { value: 'gpt-5.6-sol', label: 'GPT-5.6 Sol (新一代通用旗艦)' },
+    { value: 'gpt-5.6-terra', label: 'GPT-5.6 Terra (新一代高效率模型)' },
+    { value: '__custom__', label: '自訂其他 OpenAI 模型...' },
+  ],
+  claude: [
+    { value: 'claude-sonnet-4-6', label: 'Claude Sonnet 4.6 (推薦，最新主力旗艦)' },
+    { value: 'claude-opus-4-8', label: 'Claude Opus 4.8 (超旗艦深度思考)' },
+    { value: 'claude-haiku-4-5-20251001', label: 'Claude Haiku 4.5 (極速輕量)' },
+    { value: '__custom__', label: '自訂其他 Claude 模型...' },
+  ],
+  ollama: [
+    { value: 'llama3.1', label: 'Llama 3.1 (推薦通用)' },
+    { value: 'qwen2.5:14b', label: 'Qwen 2.5 14B (繁中/邏輯表現佳)' },
+    { value: 'mistral', label: 'Mistral (快速輕量)' },
+    { value: 'gemma2', label: 'Gemma 2' },
+    { value: '__custom__', label: '自訂本地模型名稱...' },
+  ],
+  local: [
+    { value: 'local-model', label: 'Local Model (預設載入模型)' },
+    { value: '__custom__', label: '自訂端點模型名稱...' },
+  ],
+};
+
 // --- AI 設定 Dialog ---
 function openSettingsDialog() {
   const dialog = document.getElementById('settings-dialog');
@@ -894,53 +995,71 @@ function openSettingsDialog() {
 
   const form = document.getElementById('settings-form');
   form.provider.value = s.provider;
-  form.model.value = s.model;
   form.baseUrl.value = s.baseUrl || '';
   form.enableWebSearch.checked = s.enableWebSearch;
   form.apiKey.value = s.apiKey || '';
 
-  updateProviderFormDisplay(s.provider);
+  updateProviderFormDisplay(s.provider, s.model);
   dialog.showModal();
 }
 
-function updateProviderFormDisplay(provider) {
+function updateProviderFormDisplay(provider, preferredModel = null) {
   const apiKeyLabel = document.getElementById('setting-apikey-label');
   const apiKeyHelp = document.getElementById('setting-apikey-help');
   const baseUrlLabel = document.getElementById('setting-baseurl-label');
-  const modelInput = document.getElementById('setting-model');
+  const modelSelect = document.getElementById('setting-model-select');
+  const customLabel = document.getElementById('setting-model-custom-label');
+  const customInput = document.getElementById('setting-model-custom');
 
   if (provider === 'ollama') {
     baseUrlLabel.style.display = 'block';
     apiKeyLabel.style.display = 'none';
     apiKeyHelp.textContent = '本地 Ollama 預設端點為 http://localhost:11434/v1，免填金鑰。';
-    if (!modelInput.value || modelInput.value.startsWith('gpt-') || modelInput.value.startsWith('gemini') || modelInput.value.startsWith('claude')) modelInput.value = 'llama3.1';
   } else if (provider === 'local') {
     baseUrlLabel.style.display = 'block';
     apiKeyLabel.style.display = 'block';
     apiKeyHelp.textContent = 'LM Studio / LocalAI 預設端點為 http://localhost:1234/v1。';
-    if (!modelInput.value || modelInput.value.startsWith('gpt-') || modelInput.value.startsWith('gemini') || modelInput.value.startsWith('claude')) modelInput.value = 'local-model';
   } else if (provider === 'gemini') {
     baseUrlLabel.style.display = 'none';
     apiKeyLabel.style.display = 'block';
-    apiKeyHelp.textContent = '請填寫 Google AI Studio API Key (推薦最新 gemini-3.6-flash 或 gemini-3.5-flash)。';
-    if (!modelInput.value || modelInput.value.startsWith('gpt-') || modelInput.value.startsWith('claude') || modelInput.value === 'llama3.1' || modelInput.value.startsWith('gemini-2.') || modelInput.value.startsWith('gemini-1.')) {
-      modelInput.value = 'gemini-3.6-flash';
-    }
+    apiKeyHelp.textContent = '請填寫 Google AI Studio API Key (推薦最新 gemini-3.6-flash 或 3.5 系列)。';
   } else if (provider === 'claude') {
     baseUrlLabel.style.display = 'none';
     apiKeyLabel.style.display = 'block';
     apiKeyHelp.textContent = '請填寫 Anthropic API Key (推薦最新 claude-sonnet-4-6 或 claude-opus-4-8)。';
-    if (!modelInput.value || modelInput.value.startsWith('gpt-') || modelInput.value.startsWith('gemini') || modelInput.value === 'llama3.1' || modelInput.value.startsWith('claude-3-5-sonnet') || modelInput.value.startsWith('claude-3-7-sonnet') || modelInput.value.startsWith('claude-3-haiku') || modelInput.value.startsWith('claude-3-opus')) {
-      modelInput.value = 'claude-sonnet-4-6';
-    }
   } else {
     // openai
     baseUrlLabel.style.display = 'none';
     apiKeyLabel.style.display = 'block';
     apiKeyHelp.textContent = '請填寫 OpenAI API Key (推薦 gpt-4o-mini 或旗艦 gpt-4o)。';
-    if (!modelInput.value || modelInput.value.startsWith('gemini') || modelInput.value.startsWith('claude') || modelInput.value === 'llama3.1' || modelInput.value.startsWith('gpt-3.5') || modelInput.value === 'gpt-4') {
-      modelInput.value = 'gpt-4o-mini';
+  }
+
+  // 動態填裝模型列舉選單
+  const models = PROVIDER_MODELS[provider] || PROVIDER_MODELS.gemini;
+  modelSelect.innerHTML = '';
+  let matchFound = false;
+
+  models.forEach((m) => {
+    const opt = document.createElement('option');
+    opt.value = m.value;
+    opt.textContent = m.label;
+    if (preferredModel && m.value === preferredModel) {
+      opt.selected = true;
+      matchFound = true;
     }
+    modelSelect.appendChild(opt);
+  });
+
+  if (!matchFound && preferredModel && preferredModel !== '__custom__') {
+    // 若儲存的舊模型或自訂模型不在列舉中，切換到自訂模式
+    modelSelect.value = '__custom__';
+    customLabel.style.display = 'block';
+    customInput.value = preferredModel;
+  } else if (modelSelect.value === '__custom__') {
+    customLabel.style.display = 'block';
+    customInput.value = preferredModel || '';
+  } else {
+    customLabel.style.display = 'none';
   }
 }
 
@@ -997,6 +1116,24 @@ async function startComparison() {
     }
 
     State.lastComparisonResult = data;
+    State.lastComparisonContext = {
+      properties: selectedProps,
+      household,
+      provider: settings.provider,
+      model: settings.model,
+    };
+    State.viewingSavedReportId = null;
+
+    const backBtnText = document.getElementById('compare-back-btn-text');
+    if (backBtnText) backBtnText.textContent = '返回物件列表';
+
+    const saveBtn = document.getElementById('save-compare-report-btn');
+    const saveBtnText = document.getElementById('save-report-btn-text');
+    if (saveBtn) {
+      saveBtn.classList.remove('btn-saved-success');
+      if (saveBtnText) saveBtnText.textContent = '儲存分析結果';
+    }
+
     renderComparisonResult(data, selectedProps);
 
     loading.style.display = 'none';
@@ -1195,18 +1332,23 @@ function renderComparisonResult(data, selectedProps) {
     )
     .join('');
 
-  // ⑩ 決策建議與待查事項
+  // ⑩ 決策建議與待查事項 (實地查驗待辦清單 Checklist)
   document.getElementById('not-rush-callout').textContent = data.decisionAdvice?.shouldNotRush || '請勿急於做決定，先確認關鍵待查事項。';
 
   const checksList = document.getElementById('checks-list');
   checksList.innerHTML = (data.decisionAdvice?.criticalChecks || [])
     .map(
       (ck, i) => `
-    <li class="check-item">
-      <input type="checkbox" id="check-${i}" />
-      <label for="check-${i}">
-        <strong>[${escapeHtml(ck.propertyName)}] ${escapeHtml(ck.checkItem)}</strong>
-        <small style="display:block; color:#577069; margin-top:2px;">原因：${escapeHtml(ck.reason)}</small>
+    <li class="checklist-todo-item">
+      <div class="todo-checkbox-wrapper">
+        <input type="checkbox" id="check-${i}" class="todo-checkbox" />
+      </div>
+      <label for="check-${i}" class="todo-content">
+        <div class="todo-header-line">
+          <span class="todo-prop-tag">${escapeHtml(ck.propertyName || '看房重點')}</span>
+          <span class="todo-title">${escapeHtml(ck.checkItem)}</span>
+        </div>
+        ${ck.reason ? `<p class="todo-reason"><strong>核對原因：</strong>${escapeHtml(ck.reason)}</p>` : ''}
       </label>
     </li>
   `
@@ -1267,12 +1409,171 @@ function loadSampleData() {
 }
 
 // ==========================================
+// 8.5 歷史報告管理 (Report History Management)
+// ==========================================
+function saveCurrentComparisonReport() {
+  if (!State.lastComparisonResult) {
+    alert('目前尚無可儲存的分析結果！');
+    return;
+  }
+
+  const saveBtn = document.getElementById('save-compare-report-btn');
+  const saveBtnText = document.getElementById('save-report-btn-text');
+
+  const reportId = State.viewingSavedReportId || ('report-' + Date.now());
+  const reportData = {
+    id: reportId,
+    createdAt: new Date().toISOString(),
+    properties: State.lastComparisonContext?.properties || [],
+    household: State.lastComparisonContext?.household || null,
+    provider: State.lastComparisonContext?.provider || '',
+    model: State.lastComparisonContext?.model || '',
+    result: State.lastComparisonResult,
+  };
+
+  ReportStore.save(reportData);
+  State.viewingSavedReportId = reportId;
+
+  if (saveBtn) {
+    saveBtn.classList.add('btn-saved-success');
+    if (saveBtnText) saveBtnText.textContent = '已儲存分析結果！';
+  }
+}
+
+function renderReportList() {
+  const container = document.getElementById('reports-grid');
+  const emptyState = document.getElementById('reports-empty-state');
+  const totalStats = document.getElementById('stat-total-reports');
+  const reports = ReportStore.getAll();
+
+  if (totalStats) totalStats.textContent = reports.length;
+
+  if (reports.length === 0) {
+    if (container) {
+      container.innerHTML = '';
+      container.style.display = 'none';
+    }
+    if (emptyState) emptyState.style.display = 'block';
+    return;
+  }
+
+  if (emptyState) emptyState.style.display = 'none';
+  if (container) container.style.display = 'grid';
+
+  container.innerHTML = reports
+    .map((r) => {
+      const dateStr = new Date(r.createdAt).toLocaleString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+      const topRanking = r.result?.conclusionFirst?.rankings?.[0] || {};
+      const winnerName = topRanking.propertyName || r.properties?.[0]?.name || '物件比對';
+      const winnerScore = topRanking.overallScore ? `${Number(topRanking.overallScore).toFixed(1)} 分` : '';
+      const verdict = topRanking.verdict || '';
+      const realQuestion = r.result?.theRealQuestion?.reframing || '';
+
+      const propTags = (r.properties || [])
+        .map(
+          (p) => `<span class="report-prop-tag">
+            <svg class="icon-svg sm" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+            ${escapeHtml(p.name)}
+          </span>`
+        )
+        .join('');
+
+      return `
+        <article class="report-card" data-report-id="${escapeHtml(r.id)}">
+          <div class="report-card-top">
+            <span class="report-date">
+              <svg class="icon-svg sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              ${escapeHtml(dateStr)}
+            </span>
+            <span class="report-badge ${escapeHtml(r.provider || '')}">
+              ${escapeHtml(r.model || r.provider || 'AI')}
+            </span>
+          </div>
+
+          <div class="report-props-strip">
+            ${propTags}
+          </div>
+
+          <div class="report-summary-box">
+            <div class="report-top-rank">
+              <span class="report-rank-badge">#1 首選</span>
+              <strong class="report-winner-name">${escapeHtml(winnerName)}</strong>
+              ${winnerScore ? `<span class="report-winner-score">${escapeHtml(winnerScore)}</span>` : ''}
+            </div>
+            ${verdict ? `<p class="report-verdict-text">${escapeHtml(verdict)}</p>` : ''}
+            ${realQuestion ? `<p class="report-question-snippet"><strong>核心卡點：</strong>${escapeHtml(realQuestion)}</p>` : ''}
+          </div>
+
+          <div class="report-card-actions">
+            <button class="primary-button view-report-btn" data-id="${escapeHtml(r.id)}">
+              <svg class="icon-svg sm" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              檢視完整報告
+            </button>
+            <button class="outline-button print-report-btn" data-id="${escapeHtml(r.id)}" title="列印或下載 PDF">
+              <svg class="icon-svg sm" viewBox="0 0 24 24"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            </button>
+            <button class="outline-button delete-btn delete-report-btn" data-id="${escapeHtml(r.id)}" title="刪除此報告">
+              <svg class="icon-svg sm" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            </button>
+          </div>
+        </article>
+      `;
+    })
+    .join('');
+}
+
+function loadSavedReport(reportId) {
+  const report = ReportStore.getById(reportId);
+  if (!report || !report.result) {
+    alert('找不到該筆報告資料！');
+    return;
+  }
+
+  State.lastComparisonResult = report.result;
+  State.lastComparisonContext = {
+    properties: report.properties,
+    household: report.household,
+    provider: report.provider,
+    model: report.model,
+  };
+  State.viewingSavedReportId = reportId;
+
+  switchView('compare');
+
+  const loading = document.getElementById('compare-loading');
+  const errorBox = document.getElementById('compare-error');
+  const content = document.getElementById('compare-content');
+  const backBtnText = document.getElementById('compare-back-btn-text');
+  const saveBtn = document.getElementById('save-compare-report-btn');
+  const saveBtnText = document.getElementById('save-report-btn-text');
+
+  loading.style.display = 'none';
+  errorBox.style.display = 'none';
+  content.style.display = 'block';
+
+  if (backBtnText) backBtnText.textContent = '返回歷史報告';
+  if (saveBtn) {
+    saveBtn.classList.add('btn-saved-success');
+    if (saveBtnText) saveBtnText.textContent = '已儲存分析結果';
+  }
+
+  renderComparisonResult(report.result, report.properties || []);
+}
+
+// ==========================================
 // 9. 事件監聽器與初始化 (Init)
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
   // 導航按鈕
   document.getElementById('nav-home-btn')?.addEventListener('click', () => switchView('home'));
   document.getElementById('nav-list-btn')?.addEventListener('click', () => switchView('list'));
+  document.getElementById('nav-reports-btn')?.addEventListener('click', () => switchView('reports'));
   document.getElementById('nav-brand')?.addEventListener('click', (e) => {
     e.preventDefault();
     switchView('home');
@@ -1298,6 +1599,9 @@ document.addEventListener('DOMContentLoaded', () => {
     switchView('list');
   });
 
+  // 報告空狀態跳轉按鈕
+  document.getElementById('reports-empty-goto-list-btn')?.addEventListener('click', () => switchView('list'));
+
   // 頂部按鈕
   document.getElementById('top-add-btn')?.addEventListener('click', () => openPropertyDialog(null));
   document.getElementById('empty-add-btn')?.addEventListener('click', () => openPropertyDialog(null));
@@ -1320,13 +1624,43 @@ document.addEventListener('DOMContentLoaded', () => {
   // 比較操作
   document.getElementById('start-compare-btn')?.addEventListener('click', startComparison);
   document.getElementById('rerun-compare-btn')?.addEventListener('click', startComparison);
-  document.getElementById('back-to-list-btn')?.addEventListener('click', () => switchView('list'));
+  document.getElementById('save-compare-report-btn')?.addEventListener('click', saveCurrentComparisonReport);
+  document.getElementById('back-to-list-btn')?.addEventListener('click', () => {
+    if (State.previousView === 'reports') {
+      switchView('reports');
+    } else {
+      switchView('list');
+    }
+  });
   document.getElementById('clear-selected-btn')?.addEventListener('click', () => {
     State.selectedPropertyIds.clear();
     renderPropertyList();
   });
   document.getElementById('print-pdf-btn')?.addEventListener('click', () => window.print());
   document.getElementById('error-settings-btn')?.addEventListener('click', openSettingsDialog);
+
+  // 歷史報告列表卡片事件委派 (View / PDF / Delete)
+  document.getElementById('reports-grid')?.addEventListener('click', (e) => {
+    const viewBtn = e.target.closest('.view-report-btn');
+    if (viewBtn) {
+      loadSavedReport(viewBtn.dataset.id);
+      return;
+    }
+    const printBtn = e.target.closest('.print-report-btn');
+    if (printBtn) {
+      loadSavedReport(printBtn.dataset.id);
+      setTimeout(() => window.print(), 350);
+      return;
+    }
+    const delBtn = e.target.closest('.delete-report-btn');
+    if (delBtn) {
+      if (confirm('確定要刪除這筆歷史分析報告嗎？')) {
+        ReportStore.delete(delBtn.dataset.id);
+        renderReportList();
+      }
+      return;
+    }
+  });
 
   // 彈窗關閉按鈕
   document.getElementById('close-household-btn')?.addEventListener('click', () => document.getElementById('household-dialog')?.close());
@@ -1540,13 +1874,27 @@ document.addEventListener('DOMContentLoaded', () => {
     updateProviderFormDisplay(e.target.value);
   });
 
+  // AI 設定 Model Select 變更監聽 (切換自訂模型輸入框)
+  document.getElementById('setting-model-select')?.addEventListener('change', (e) => {
+    const customLabel = document.getElementById('setting-model-custom-label');
+    const customInput = document.getElementById('setting-model-custom');
+    if (e.target.value === '__custom__') {
+      customLabel.style.display = 'block';
+      customInput.focus();
+    } else {
+      customLabel.style.display = 'none';
+    }
+  });
+
   // AI 設定 Form Submit
   document.getElementById('settings-form')?.addEventListener('submit', (e) => {
     e.preventDefault();
     const form = e.target;
+    const modelValue = form.modelSelect.value === '__custom__' ? form.modelCustom.value.trim() : form.modelSelect.value;
+
     SettingsStore.save({
       provider: form.provider.value,
-      model: form.model.value.trim(),
+      model: modelValue,
       baseUrl: form.baseUrl.value.trim(),
       enableWebSearch: form.enableWebSearch.checked,
       apiKey: form.apiKey.value.trim(),

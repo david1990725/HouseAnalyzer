@@ -16,6 +16,7 @@ function send(res, code, body, headers = {}) {
 http.createServer((req, res) => {
   if (req.url === '/api/compare') {
     if (req.method !== 'POST') return send(res, 405, { error: 'Only POST is supported.' });
+    req.setEncoding('utf8');
     let raw = '';
     req.on('data', (chunk) => { raw += chunk; if (raw.length > 300_000) req.destroy(); });
     req.on('end', async () => {
@@ -28,6 +29,7 @@ http.createServer((req, res) => {
   }
   if (req.url === '/api/analyze') {
     if (req.method !== 'POST') return send(res, 405, { error: 'Only POST is supported.' });
+    req.setEncoding('utf8');
     let raw = '';
     req.on('data', (chunk) => { raw += chunk; if (raw.length > 200_000) req.destroy(); });
     req.on('end', async () => {

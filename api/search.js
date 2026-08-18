@@ -39,6 +39,7 @@ function fetchUrl(url, timeoutMs = 4000) {
           timeout: timeoutMs,
         },
         (res) => {
+          res.setEncoding('utf8');
           let data = '';
           res.on('data', (chunk) => {
             data += chunk;
@@ -166,8 +167,9 @@ async function fetchVerifiedFacts(properties, household) {
     }
   }
 
-  // 最多並行搜尋，並限制總等待時間 5 秒
-  await Promise.all(searchPromises.slice(0, 6));
+  // 最多並行搜尋，並限制總等待時間 4 秒（避免拖慢主 AI 運算）
+  const timeoutPromise = new Promise((resolve) => setTimeout(resolve, 4000));
+  await Promise.race([Promise.all(searchPromises.slice(0, 6)), timeoutPromise]);
 
   return verifiedFacts;
 }
