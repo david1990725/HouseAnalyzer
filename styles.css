@@ -1846,7 +1846,7 @@ body.is-home-view #app-topbar {
 }
 
 /* ==========================================================================
-   彈窗 Dialogs (寬版桌面設計)
+   彈窗 Dialogs (寬版桌面設計 & 平滑浮現動態)
    ========================================================================== */
 dialog {
   border: 0;
@@ -1857,6 +1857,21 @@ dialog {
   max-width: 680px;
   width: calc(100% - 48px);
   margin: auto;
+}
+
+dialog[open] {
+  animation: dialogScaleIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes dialogScaleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 dialog#property-dialog {
@@ -1881,7 +1896,13 @@ dialog.large {
 
 dialog::backdrop {
   background: rgba(17, 45, 39, 0.7);
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(6px);
+  animation: backdropFadeIn 0.25s ease forwards;
+}
+
+@keyframes backdropFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .dialog-content {
