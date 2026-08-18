@@ -3,6 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const analyze = require('./api/analyze');
 
+const compare = require('./api/compare');
+
 const root = __dirname;
 const types = { '.css': 'text/css; charset=utf-8', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json' };
 
@@ -12,6 +14,18 @@ function send(res, code, body, headers = {}) {
 }
 
 http.createServer((req, res) => {
+  if (req.url === '/api/compare') {
+    if (req.method !== 'POST') return send(res, 405, { error: 'Only POST is supported.' });
+    let raw = '';
+    req.on('data', (chunk) => { raw += chunk; if (raw.length > 300_000) req.destroy(); });
+    req.on('end', async () => {
+      try {
+        const body = JSON.parse(raw || '{}');
+        await compare({ method: req.method, body }, res);
+      } catch { send(res, 400, { error: '請提供有效的 JSON 請求。' }); }
+    });
+    return;
+  }
   if (req.url === '/api/analyze') {
     if (req.method !== 'POST') return send(res, 405, { error: 'Only POST is supported.' });
     let raw = '';

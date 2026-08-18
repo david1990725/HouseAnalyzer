@@ -3,71 +3,973 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>住得明白｜租屋物件分析</title>
-    <meta name="theme-color" content="#173c37" />
+    <title>住得明白｜租屋物件橫向比較與前瞻決策系統</title>
+    <meta name="description" content="零依賴、Local-first、客觀與主觀嚴格隔離的 AI 租屋比較與前瞻決策分析工具。" />
+    <meta name="theme-color" content="#112d27" />
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="pwa.css" />
   </head>
   <body>
+    <!-- 側邊欄 Sidebar -->
     <aside class="sidebar">
-      <a class="brand" href="#top"><span class="brand-mark">住</span><span>住得明白</span></a>
+      <a class="brand" href="#view-home" id="nav-brand"><span class="brand-mark">住</span><span>住得明白</span></a>
       <nav>
-        <a class="nav-link active" href="#overview"><span>⌂</span>我的物件</a>
-        <a class="nav-link" href="#compare"><span>⇄</span>比較物件</a>
-        <button class="nav-link nav-button" id="open-settings"><span>⚙</span>AI 設定</button>
+        <button class="nav-link active" id="nav-home-btn">
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          首頁總覽
+        </button>
+        <button class="nav-link" id="nav-list-btn">
+          <svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          我的物件
+        </button>
+        <button class="nav-link" id="nav-household-btn">
+          <svg class="icon-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          家庭資料
+        </button>
+        <button class="nav-link" id="nav-settings-btn">
+          <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          AI 設定
+        </button>
       </nav>
-      <div class="sidebar-bottom"><div class="privacy-dot"></div><p>主觀意見不會送入 AI 分析</p><small>Local-first prototype</small></div>
+      <div class="sidebar-bottom">
+        <p><span class="privacy-dot"></span>客觀與主觀嚴格隔離</p>
+        <small>LOCAL-FIRST ARCHITECTURE</small>
+      </div>
     </aside>
-    <main id="top">
-      <header class="topbar"><button class="back" aria-label="返回物件列表">‹</button><div><p class="eyebrow">我的物件 / 新北市淡水區</p><h1>晴海</h1></div><div class="top-actions"><button class="icon-button" aria-label="更多選項">•••</button><button class="outline-button">匯出報告 ↗</button></div></header>
 
-      <section class="hero" id="overview">
-        <div class="hero-copy"><p class="tag">AI RENTAL PROPERTY ANALYZER</p><h2>先看客觀條件，<br /><em>再做自己的決定。</em></h2><p class="hero-description">把物件條件、未來變數與你的生活情境拆開看，讓租屋選擇更清楚。</p><div class="property-meta"><span>電梯大樓</span><i></i><span>32 坪</span><i></i><span>3 房 2 廳 2 衛</span><i></i><span>8 / 15 樓</span></div></div>
-        <div class="hero-stat"><div class="score-orb"><span>8.2</span><small>/ 10</small></div><p>AI 客觀評價</p><strong>值得考慮</strong><span class="updated">剛剛完成分析</span></div>
+    <!-- 主工作區 Main -->
+    <main id="app-main">
+      <!-- 頂部工具列 (僅在我的物件與比較頁面顯示) -->
+      <header class="topbar" id="app-topbar">
+        <div class="topbar-title">
+          <p class="eyebrow" id="topbar-eyebrow">AI RENTAL PROPERTY COMPARATOR</p>
+          <h1 id="topbar-heading">我的租屋物件</h1>
+        </div>
+        <div class="topbar-actions" id="topbar-actions">
+          <button class="outline-button" id="top-import-btn">
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            匯入 MD
+          </button>
+          <button class="primary-button" id="top-add-btn">
+            <svg class="icon-svg" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            新增物件
+          </button>
+        </div>
+      </header>
+
+      <!-- ========================================== -->
+      <!-- 視圖 0: 全新滿版綠色動態首頁 (View Home Landing) -->
+      <!-- ========================================== -->
+      <section id="view-home" class="app-view home-view-full active">
+        <!-- 背景動態極光光暈層 Dynamic Ambient Glow Layers -->
+        <div class="home-aurora-bg">
+          <div class="aurora-orb orb-1"></div>
+          <div class="aurora-orb orb-2"></div>
+          <div class="aurora-orb orb-3"></div>
+          <div class="architectural-grid-overlay"></div>
+        </div>
+
+        <!-- 首頁專屬浮動導覽列 Floating Landing Nav -->
+        <header class="home-nav">
+          <a class="brand" href="#view-home" id="home-brand">
+            <span class="brand-mark">住</span>
+            <span>住得明白</span>
+          </a>
+          <div class="home-nav-links">
+            <button class="home-nav-btn" id="home-nav-household-btn">
+              <svg class="icon-svg sm" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              家庭資料
+            </button>
+            <button class="home-nav-btn" id="home-nav-settings-btn">
+              <svg class="icon-svg sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+              AI 設定
+            </button>
+            <button class="primary-button" id="home-top-enter-btn">
+              進入我的物件工作區
+              <svg class="icon-svg sm" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </button>
+          </div>
+        </header>
+
+        <!-- 主視覺 Hero 內容 -->
+        <div class="home-hero-container">
+          <div class="home-hero-badge">
+            <svg class="icon-svg sm" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            OPEN SOURCE · LOCAL-FIRST AI RENTAL ANALYZER
+          </div>
+          <h1 class="home-hero-title">
+            先看客觀條件，<br />
+            <em>再做自己的決定。</em>
+          </h1>
+          <p class="home-hero-subtitle">
+            不被房東話術迷惑，不受單一模型偏誤左右。<br />
+            嚴格隔離主觀筆記與客觀事實，結合即時網路查核與前瞻 SWOT 推理，為全家人找到真正合適的生活策略。
+          </p>
+
+          <div class="home-hero-actions">
+            <button class="primary-button lg pulse-glow" id="home-enter-btn">
+              進入我的物件工作區
+              <svg class="icon-svg" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </button>
+            <button class="outline-button lg glass-btn" id="home-sample-btn">
+              <svg class="icon-svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+              載入示範資料並體驗
+            </button>
+          </div>
+
+          <div class="home-metrics-strip">
+            <div class="metric-item">
+              <span class="metric-val">100%</span>
+              <span class="metric-lbl">本地隱私隔離</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-val">4 大</span>
+              <span class="metric-lbl">客觀深度面向</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-val">11 區塊</span>
+              <span class="metric-lbl">結構化決策報告</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-val">零依賴</span>
+              <span class="metric-lbl">純原生輕量架構</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 核心三大支柱 Pillars -->
+        <div class="home-section-header">
+          <p class="eyebrow">CORE ARCHITECTURE & VALUES</p>
+          <h2>為什麼需要「住得明白」？</h2>
+          <p>傳統找房往往在多個租屋網站與筆記間迷失。我們以「客觀事實推演」與「家庭生活策略」為核心，重塑看房決策流程。</p>
+        </div>
+
+        <div class="home-pillars-grid">
+          <div class="pillar-card">
+            <div class="pillar-icon-box">
+              <svg class="icon-svg lg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+            <h3>主客觀嚴格隔離</h3>
+            <p>你的直覺喜好評分、心動亮點與家庭隨筆<strong>純本地保存，絕不上傳 AI</strong>。AI 僅根據客觀規格推演，防止 AI 迎合偏好或產生偏誤。</p>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-icon-box">
+              <svg class="icon-svg lg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+            </div>
+            <h3>即時學區與交通聯網查核</h3>
+            <p>自動去除門牌號碼模糊化查詢，即時檢索學校<strong>額滿公告、轉乘公車班距與新開通交通建設</strong>，用公開事實戳破仲介話術。</p>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-icon-box">
+              <svg class="icon-svg lg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            </div>
+            <h3>Markdown 開源資產可攜</h3>
+            <p>支援單一物件 `.md` 檔案一鍵下載與匯入。無資料庫依賴、無平台綁定，看房筆記與分析報告永遠屬於你自己。</p>
+          </div>
+        </div>
+
+        <!-- 十一大結構化模組預覽 Showcase -->
+        <div class="home-section-header" style="margin-top: 50px;">
+          <p class="eyebrow">11-SECTION DECISION FRAMEWORK</p>
+          <h2>十一大結構化分析模組</h2>
+          <p>每次比較皆產出縝密的十一大結構化維度，從財務成本、維修責任到生活策略，層層剖析。</p>
+        </div>
+
+        <div class="home-modules-grid">
+          <div class="module-card">
+            <span class="module-num">01</span>
+            <h4>先講結論 Hero Rankings</h4>
+            <p>AI 客觀量化總分、排名徽章與關鍵核心定位判斷。</p>
+          </div>
+          <div class="module-card">
+            <span class="module-num">02</span>
+            <h4>各物件深入面向分析</h4>
+            <p>交通、學區、空間屋況、周邊氛圍 4 大面向獨立推演與警示。</p>
+          </div>
+          <div class="module-card">
+            <span class="module-num">03</span>
+            <h4>租金真正的差異</h4>
+            <p>原始月成本（含管停）vs 租補後預估實質支出對比。</p>
+          </div>
+          <div class="module-card">
+            <span class="module-num">04</span>
+            <h4>租約條款與維修風險</h4>
+            <p>房東附屬設備維修責任、已知問題與隱性維修成本試算。</p>
+          </div>
+          <div class="module-card">
+            <span class="module-num">05</span>
+            <h4>生活策略框架</h4>
+            <p>跳脫坪數與租金，將物件重新定位為具體的生活方式選擇。</p>
+          </div>
+          <div class="module-card">
+            <span class="module-num">06</span>
+            <h4>真正的問題</h4>
+            <p>重塑決策核心，對比兩種截然不同的家庭生活妥協方案。</p>
+          </div>
+          <div class="module-card">
+            <span class="module-num">07</span>
+            <h4>核心平衡結論</h4>
+            <p>各物件「得到什麼 vs 承擔什麼」的客觀優勢與最大風險。</p>
+          </div>
+          <div class="module-card">
+            <span class="module-num">08</span>
+            <h4>優先順序情境排名</h4>
+            <p>依據「預算優先 / 學區優先 / 通勤優先」動態調整建議序位。</p>
+          </div>
+          <div class="module-card">
+            <span class="module-num">09</span>
+            <h4>條件式排名反轉</h4>
+            <p>揭示哪些關鍵事實一旦確認（如學區額滿），會引發排名反轉。</p>
+          </div>
+          <div class="module-card">
+            <span class="module-num">10</span>
+            <h4>實地查驗清單 Checklist</h4>
+            <p>看房與簽約前必須逐一確認的關鍵問題（支援互動勾選核對）。</p>
+          </div>
+          <div class="module-card">
+            <span class="module-num">11</span>
+            <h4>主觀感受對照附錄</h4>
+            <p>純本地直覺喜好、最愛亮點與家庭隨筆，供列印與討論時綜合參考。</p>
+          </div>
+          <div class="module-card" style="background: rgba(18, 46, 39, 0.75); color: #fff; border-color: rgba(203, 241, 53, 0.3);">
+            <span class="module-num" style="color: var(--accent-lime); border-color: var(--accent-lime); display: inline-flex; align-items: center;">
+              <svg class="icon-svg sm" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            </span>
+            <h4 style="color: #fff;">即時公開網路查核</h4>
+            <p style="color: #bfd4cb;">檢索最新教育局額滿公告與即時交通路線驗證依據。</p>
+          </div>
+        </div>
+
+        <!-- 底部 CTA 橫幅 -->
+        <div class="home-bottom-cta">
+          <h2>準備好做出理性的租屋決策了嗎？</h2>
+          <p>不論是正在看房、準備簽約，或是想評估不同區域的生活可能性，「住得明白」都能助你一臂之力。</p>
+          <button class="primary-button lg" id="home-bottom-enter-btn">
+            立即進入我的物件工作區
+            <svg class="icon-svg" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </button>
+        </div>
       </section>
 
-      <section class="objective-notice"><span class="notice-icon">✦</span><div><strong>這是獨立的客觀分析</strong><p>AI 僅根據物件資料與公開資訊評估，不會讀取你的喜好或看房心得。</p></div><button id="edit-property" class="text-button">編輯客觀資料</button></section>
+      <!-- ========================================== -->
+      <!-- 視圖 1: 我的物件列表工作區 (View List) -->
+      <!-- ========================================== -->
+      <section id="view-list" class="app-view" style="display: none;">
+        <!-- 橫幅說明 -->
+        <div class="list-hero">
+          <div class="list-hero-content">
+            <span class="tag">
+              <svg class="icon-svg sm" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              WORKSPACE
+            </span>
+            <h2>我的看房紀錄與橫向比對</h2>
+            <p>建立或匯入你的看房紀錄，勾選 <strong>2 至 3 間物件</strong> 即可啟動多模型客觀橫向比較、軟性前瞻 SWOT 與即時網路查核。</p>
+          </div>
+          <div class="list-hero-stats">
+            <div class="stat-box">
+              <span class="stat-number" id="stat-total-props">0</span>
+              <span class="stat-label">已建檔物件</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-number" id="stat-selected-props">0 / 3</span>
+              <span class="stat-label">已選取比對</span>
+            </div>
+          </div>
+        </div>
 
-      <section class="analysis-runner" id="analyze">
-        <div><p class="eyebrow">BYOK AI ANALYSIS</p><h2>準備好後，開始客觀分析</h2><p>填入或確認物件客觀資料，接著使用你的 OpenAI API Key 分析。你的「我的感受」不會送出。</p></div>
-        <div class="runner-actions"><span id="api-state">尚未設定 API Key</span><button class="primary-button" id="run-analysis">用 AI 重新分析</button></div>
-        <p class="analysis-status" id="analysis-status" aria-live="polite"></p>
+        <!-- 決策三步驟導引條 -->
+        <div class="workflow-strip">
+          <div class="workflow-card">
+            <span class="workflow-step-num">1</span>
+            <div>
+              <h4>設定家庭客觀脈絡</h4>
+              <p>填寫成員、通勤目的地與月收入，建立 AI 分析基線。</p>
+            </div>
+          </div>
+          <div class="workflow-card">
+            <span class="workflow-step-num">2</span>
+            <div>
+              <h4>記錄看房軟性隨筆</h4>
+              <p>填寫客觀規格，並記下現在感受與未來想像（純本地保存）。</p>
+            </div>
+          </div>
+          <div class="workflow-card">
+            <span class="workflow-step-num">3</span>
+            <div>
+              <h4>啟動 AI 橫向對比</h4>
+              <p>選取 2~3 間物件，產出十一大結構化分析與決策清單。</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 隱私保護 Banner -->
+        <div class="privacy-banner">
+          <span class="notice-icon">
+            <svg class="icon-svg lg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          </span>
+          <div>
+            <strong>隱私與資安承諾：</strong>
+            <span>所有看房筆記、主觀喜好與家庭財務資料均保存在本機瀏覽器。AI 比較僅傳送客觀條件與公開事實，主觀感受絕不上傳。</span>
+          </div>
+          <button class="text-button" id="banner-household-btn">
+            查看家庭背景
+            <svg class="icon-svg sm" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+          </button>
+        </div>
+
+        <!-- 寬版 2 欄物件卡片 Grid -->
+        <div class="property-grid" id="property-grid">
+          <!-- 動態注入卡片 -->
+        </div>
+
+        <!-- 空狀態 (無物件時) -->
+        <div class="empty-state" id="empty-state" style="display: none;">
+          <div class="empty-icon">
+            <svg class="icon-svg xl" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          </div>
+          <h3>尚未建立任何租屋物件</h3>
+          <p>點選下方按鈕新增第一間看房紀錄，或載入示範資料進行體驗。</p>
+          <div class="empty-actions">
+            <button class="primary-button" id="empty-add-btn">
+              <svg class="icon-svg" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              新增第一間物件
+            </button>
+            <button class="outline-button" id="empty-sample-btn">
+              <svg class="icon-svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+              載入示範資料
+            </button>
+          </div>
+        </div>
+
+        <!-- 浮動比對列 -->
+        <div class="compare-bar" id="compare-bar">
+          <div class="compare-bar-info">
+            <span class="compare-badge" id="compare-count-badge">已選取 0 間</span>
+            <p id="compare-bar-text">請選取 2 至 3 間物件進行橫向比較分析</p>
+          </div>
+          <div class="compare-bar-actions">
+            <button class="outline-button" id="clear-selected-btn">清除選取</button>
+            <button class="primary-button" id="start-compare-btn" disabled>
+              <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+              啟動 AI 客觀比較 (選 2~3 間)
+            </button>
+          </div>
+        </div>
       </section>
 
-      <section class="summary-grid">
-        <article class="summary-card"><span class="card-label">一句話總評</span><p>生活機能與空間表現亮眼，<br />但需以捷運距離換取居住品質。</p></article>
-        <article class="summary-card"><span class="card-label">月租與費用</span><p class="rent">$21,500 <small>/ 月</small></p><span class="subtle">含管理費・含車位・可申請租補</span></article>
-        <article class="summary-card"><span class="card-label">最大取捨</span><p>用較遠的捷運距離，<br />換取更大空間與公園生活。</p></article>
+      <!-- ========================================== -->
+      <!-- 視圖 2: AI 客觀比較結果頁面 (View Compare) -->
+      <!-- ========================================== -->
+      <section id="view-compare" class="app-view" style="display: none;">
+        <div class="compare-header-bar">
+          <button class="back-button" id="back-to-list-btn">
+            <svg class="icon-svg sm" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            返回物件列表
+          </button>
+          <div class="compare-header-actions">
+            <button class="outline-button" id="rerun-compare-btn">
+              <svg class="icon-svg" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+              重新分析
+            </button>
+            <button class="primary-button" id="print-pdf-btn">
+              <svg class="icon-svg" viewBox="0 0 24 24"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+              下載 PDF 報告
+            </button>
+          </div>
+        </div>
+
+        <div class="loading-state" id="compare-loading" style="display: none;">
+          <div class="spinner"></div>
+          <h3 id="loading-title">AI 正在進行橫向客觀比較分析...</h3>
+          <p id="loading-desc">正在檢索即時學區與交通公開資料，並進行反偏誤與前瞻 SWOT 推理。</p>
+        </div>
+
+        <div class="error-box" id="compare-error" style="display: none;">
+          <span class="error-icon">
+            <svg class="icon-svg lg" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          </span>
+          <div>
+            <strong id="error-title">分析過程發生錯誤</strong>
+            <p id="error-message">請確認 AI 設定中的 API Key 或模型端點是否正確。</p>
+          </div>
+          <button class="outline-button" id="error-settings-btn">前往 AI 設定</button>
+        </div>
+
+        <!-- 比較分析完整內容容器 (十一大區塊) -->
+        <div class="compare-content" id="compare-content" style="display: none;">
+          <!-- ① 先講結論 -->
+          <section class="compare-section hero-rankings-section">
+            <p class="eyebrow">EXECUTIVE SUMMARY</p>
+            <h2>綜合評比與定位結論</h2>
+            <div class="rankings-table-container">
+              <table class="rankings-table" id="rankings-table">
+                <thead>
+                  <tr>
+                    <th>名次</th>
+                    <th>物件名稱</th>
+                    <th>AI 客觀總分</th>
+                    <th>核心定位與一句話判斷</th>
+                  </tr>
+                </thead>
+                <tbody id="rankings-tbody"></tbody>
+              </table>
+            </div>
+            <div class="caveat-box" id="conclusion-caveat">
+              <span class="caveat-icon">
+                <svg class="icon-svg" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              </span>
+              <div>
+                <strong>重要但書：</strong>
+                <p id="caveat-text"></p>
+              </div>
+            </div>
+          </section>
+
+          <!-- ② 各物件深入分析 -->
+          <section class="compare-section">
+            <p class="eyebrow">DETAILED DIMENSION ANALYSIS</p>
+            <h2>各物件深入面向分析</h2>
+            <div class="analyses-grid" id="analyses-grid"></div>
+          </section>
+
+          <!-- ③ 租金真正的差異 -->
+          <section class="compare-section">
+            <p class="eyebrow">TRUE FINANCIAL COST</p>
+            <h2>租金真正的差異（原始月支出 vs 租補後成本）</h2>
+            <div class="cost-table-container">
+              <table class="cost-table" id="cost-table">
+                <thead>
+                  <tr>
+                    <th>物件名稱</th>
+                    <th>原始月成本（含管/停）</th>
+                    <th>租補後預估支出</th>
+                    <th>費用與補貼備註</th>
+                  </tr>
+                </thead>
+                <tbody id="cost-tbody"></tbody>
+              </table>
+            </div>
+            <div class="insight-highlight" id="cost-insight-box">
+              <span class="insight-label">財務洞察</span>
+              <p id="cost-insight-text"></p>
+            </div>
+          </section>
+
+          <!-- ④ 租約與隱性風險 -->
+          <section class="compare-section">
+            <p class="eyebrow">LEASE & HIDDEN LIABILITIES</p>
+            <h2>租約條款與隱性維修責任分析</h2>
+            <div class="risks-grid" id="risks-grid"></div>
+          </section>
+
+          <!-- ⑤ 生活策略框架 -->
+          <section class="compare-section">
+            <p class="eyebrow">LIFE STRATEGY FRAMEWORK</p>
+            <h2>三種完全不同的生活策略選擇</h2>
+            <div class="strategies-grid" id="strategies-grid"></div>
+          </section>
+
+          <!-- ⑥ 真正的問題 -->
+          <section class="compare-section real-question-section">
+            <p class="eyebrow">THE REAL QUESTION</p>
+            <h2>真正的問題：重新定義你的決策核心</h2>
+            <blockquote class="reframing-quote" id="reframing-quote"></blockquote>
+            <div class="options-comparison" id="options-comparison">
+              <div class="option-column option-a" id="option-a-box">
+                <h3 id="option-a-label">方案 A</h3>
+                <p id="option-a-desc"></p>
+                <div class="option-props" id="option-a-props"></div>
+              </div>
+              <div class="option-column option-b" id="option-b-box">
+                <h3 id="option-b-label">方案 B</h3>
+                <p id="option-b-desc"></p>
+                <div class="option-props" id="option-b-props"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ⑦ 核心結論 -->
+          <section class="compare-section">
+            <p class="eyebrow">BALANCED CONCLUSION</p>
+            <h2>核心結論：得到什麼 vs 承擔什麼</h2>
+            <div class="conclusion-cards-grid" id="conclusion-cards-grid"></div>
+          </section>
+
+          <!-- ⑧ 情境排名 -->
+          <section class="compare-section">
+            <p class="eyebrow">SCENARIO RANKINGS</p>
+            <h2>生活優先順序不同時的排名變化</h2>
+            <div class="scenarios-list" id="scenarios-list"></div>
+          </section>
+
+          <!-- ⑨ 條件式排名反轉 -->
+          <section class="compare-section">
+            <p class="eyebrow">RANK REVERSAL TRIGGERS</p>
+            <h2>哪些事實一旦確認，會導致排名大幅反轉？</h2>
+            <div class="reversals-grid" id="reversals-grid"></div>
+          </section>
+
+          <!-- ⑩ 決策建議與待查事項 -->
+          <section class="compare-section advice-section">
+            <p class="eyebrow">NEXT STEPS & ACTIONABLE CHECKS</p>
+            <h2>決策建議與實地查驗清單</h2>
+            <div class="not-rush-callout" id="not-rush-callout"></div>
+            <div class="checks-container">
+              <h3>看房簽約前必須確認的關鍵問題（可勾選核對）：</h3>
+              <ul class="checks-list" id="checks-list"></ul>
+            </div>
+            <div class="final-recommendation-card" id="final-recommendation-card">
+              <span class="rec-badge">AI 最終條件式建議</span>
+              <p id="final-recommendation-text"></p>
+            </div>
+          </section>
+
+          <!-- ⑪ 主觀附錄 (純本地對照) -->
+          <section class="compare-section subjective-appendix-section">
+            <p class="eyebrow">YOUR SUBJECTIVE INTUITION</p>
+            <h2>附錄：你的主觀感受與看房筆記對照</h2>
+            <p class="subtle-note">以下為你在各物件記錄的主觀喜好、最滿意亮點、最擔心雷點與四大面向隨筆。此部分純屬個人直覺，未提供給 AI 分析，供你列印與家庭討論時綜合對照。</p>
+            <div class="subjective-matrix" id="subjective-matrix"></div>
+          </section>
+
+          <!-- 公開網路查核來源依據 -->
+          <section class="compare-section sources-section" id="sources-section" style="display: none;">
+            <p class="eyebrow">PUBLIC VERIFIED SOURCES</p>
+            <h2>即時公開資料查核依據</h2>
+            <ul class="sources-list" id="sources-list"></ul>
+          </section>
+        </div>
       </section>
 
-      <section class="section-header"><div><p class="eyebrow">OBJECTIVE SCORE</p><h2>現在，住起來怎麼樣？</h2></div><p>以公開資料與物件條件分析</p></section>
-      <section class="score-grid">
-        <article class="score-card"><div><span class="score-icon">⌁</span><span class="score-value">8.5</span></div><h3>交通</h3><p>公車選擇多，但步行至捷運站約 15 分鐘。</p><div class="meter"><b style="width:85%"></b></div></article>
-        <article class="score-card"><div><span class="score-icon">▦</span><span class="score-value">8.0</span></div><h3>學區</h3><p>學校與托育資源完善，實際分發仍須確認。</p><div class="meter"><b style="width:80%"></b></div></article>
-        <article class="score-card"><div><span class="score-icon">⌂</span><span class="score-value">7.0</span></div><h3>空間／屋況</h3><p>格局方正、空間充足，部分設備較有年紀。</p><div class="meter"><b style="width:70%"></b></div></article>
-        <article class="score-card"><div><span class="score-icon">✳</span><span class="score-value">9.0</span></div><h3>周邊環境</h3><p>公園、採買與日常機能都在舒適距離內。</p><div class="meter"><b style="width:90%"></b></div></article>
-      </section>
-
-      <section class="insight-layout">
-        <div class="findings"><section class="section-header compact"><div><p class="eyebrow">RIGHT NOW</p><h2>已經擁有的，與要接受的</h2></div></section><div class="two-column"><article class="finding positive"><header><span>↗</span><h3>現在的優勢</h3></header><ul><li>32 坪三房，家庭居住空間充足</li><li>步行可達公園、市場與超商</li><li>社區有管理，公共區域整潔</li></ul></article><article class="finding negative"><header><span>↘</span><h3>現在的問題</h3></header><ul><li>離捷運站較遠，通勤需預留時間</li><li>冷氣與部分家電使用年限較長</li><li>租金加車位後，支出相對偏高</li></ul></article></div></div>
-        <aside class="tradeoff"><p class="eyebrow">THE CORE TRADE-OFF</p><span class="trade-icon">⚖</span><h3>最大的交換條件</h3><p>你用較遠的捷運距離，換取較大的居住空間、完整家庭機能與公園生活。</p><div><span>得到</span><strong>空間 · 環境 · 機能</strong></div><div><span>犧牲</span><strong>通勤便利 · 部分設備新穎度</strong></div></aside>
-      </section>
-
-      <section class="future" id="swot"><div class="future-heading"><p class="eyebrow">LOOKING AHEAD</p><h2>未來，可能怎麼變？</h2><p>以下將已知事實與合理推論清楚分開。</p></div><div class="future-cards"><article><div class="future-title"><span>↗</span><h3>可能的機會</h3></div><p>周邊公共建設逐步到位，長期生活機能可能持續提升。</p><span class="confidence likely">LIKELY・高度可能</span></article><article><div class="future-title"><span>!</span><h3>需要留意的風險</h3></div><p>設備持續老化可能增加維修溝通與居住成本；周邊建設期間也可能有噪音。</p><span class="confidence possible">POSSIBLE・合理可能</span></article></div><p class="plain-language"><span>白話解讀</span>現在能享受相對成熟、安靜的家庭生活；往後機能有望變好，但需要保留對設備與施工影響的彈性。</p></section>
-
-      <section class="fit-section"><div class="fit-heading"><p class="eyebrow">LIVING SCENARIOS</p><h2>這間房子，適合誰？</h2></div><div class="fit-grid"><article><span>很適合</span><h3>重視家庭生活品質的人</h3><p>有小孩、需要三房空間、喜歡步行到公園與日常採買的人。</p></article><article><span>比較不適合</span><h3>高度依賴捷運通勤的人</h3><p>每日需快速轉乘，或對全新設備與維修零容忍的人。</p></article></div></section>
-
-      <section class="personal"><div><p class="eyebrow">YOUR PERSPECTIVE</p><h2>這是你的感覺，<em>不會影響 AI 評分。</em></h2><p>記下看房後的直覺與在意之處，協助你最後做出自己的決定。</p></div><div class="personal-score"><span>我的喜好</span><button class="hearts" id="heart-rating" aria-label="設定主觀喜好分數">♡ ♡ ♡ ♡ ♡</button><small id="rating-label">尚未評分</small></div><textarea id="personal-note" placeholder="例如：客廳採光比照片好，但廚房收納稍不足…"></textarea><div class="personal-actions"><button class="outline-button" id="save-note">儲存我的想法</button><span id="save-status" aria-live="polite"></span></div></section>
-
-      <section class="decision"><div><p class="eyebrow">FINAL DECISION</p><h2>你的最終決定，由你決定。</h2><p>AI 提供客觀參考；喜好、預算與生活優先順序，仍然是你的選擇。</p></div><div class="decision-options" id="decision-options"><button data-choice="優先考慮">優先考慮</button><button data-choice="值得議價">值得議價</button><button data-choice="繼續觀察">繼續觀察</button><button data-choice="淘汰">淘汰</button></div></section>
-      <footer>住得明白 · 本原型不會儲存 API Key 或連線至外部資料來源。</footer>
+      <!-- 頁尾 Footer -->
+      <footer class="app-footer">
+        <p>住得明白 · 本機優先、零相依開源租屋分析工具 · 所有資料保存在您的裝置上</p>
+      </footer>
     </main>
-    <dialog id="property-dialog"><form id="objective-form"><button class="dialog-close" type="button" aria-label="關閉">×</button><p class="eyebrow">OBJECTIVE DATA ONLY</p><h2>物件客觀資料</h2><p>只有這些資料會傳送給 AI。你的主觀心得將維持在瀏覽器內。</p><div class="form-grid"><label>物件名稱<input name="name" value="晴海" required /></label><label>物件型態<input name="type" value="電梯大樓" required /></label><label class="wide">完整地址<input name="address" value="251新北市淡水區崁頂里新市一路一段331巷96號" required /></label><label>月租（元）<input name="rent" type="number" value="21500" min="0" required /></label><label>坪數<input name="size" placeholder="例如：22" /></label><label>格局<input name="layout" value="兩房" /></label><label>屋齡<input name="age" value="約 10 年" /></label><label>管理費<input name="managementFee" value="包含" /></label><label>停車費<input name="parkingFee" value="包含" /></label><label>租屋補貼<input name="subsidy" value="可申請" /></label><label class="wide">客觀設備／屋況<textarea name="condition">電梯、車位、天然瓦斯、社區物業管理；冷氣兩台與洗碗槽鏽蝕由房東修繕；無洗衣機。</textarea></label><label class="wide">公開連結或其他可驗證資訊<textarea name="evidence">https://e.houseflow.tw/9gn8e3</textarea></label></div><button class="primary-button">儲存客觀資料</button></form></dialog>
-    <dialog id="settings-dialog"><form id="settings-form"><button class="dialog-close" type="button" aria-label="關閉">×</button><p class="eyebrow">YOUR OPENAI ACCOUNT</p><h2>AI 設定</h2><p>API Key 只暫存於本次瀏覽器工作階段，並在分析時直接送到 OpenAI；本站不會保存它。</p><label>OpenAI API Key<input name="apiKey" type="password" autocomplete="off" placeholder="sk-..." required /></label><label>模型<input name="model" value="gpt-5.4-nano" required /></label><p class="field-help">請使用可支援 Structured Outputs 的模型。API 使用費由你的 OpenAI 帳戶計費。</p><button class="primary-button">儲存本次設定</button></form></dialog>
+
+    <!-- ========================================== -->
+    <!-- 彈窗 1: 家庭基本資料 (Household Profile) -->
+    <!-- ========================================== -->
+    <dialog id="household-dialog">
+      <div class="dialog-content">
+        <div class="dialog-header">
+          <div>
+            <p class="eyebrow">HOUSEHOLD CONTEXT</p>
+            <h2>家庭基本資料（全域客觀脈絡）</h2>
+          </div>
+          <button class="dialog-close" type="button" id="close-household-btn" aria-label="關閉">
+            <svg class="icon-svg" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+        <p class="dialog-description">
+          AI 會以這些家庭資訊作為客觀分析脈絡，評估各物件的通勤時間、居住空間、學區適配性與租金可負擔性。全域共用一次設定。
+        </p>
+
+        <form id="household-form">
+          <!-- 成員列表 -->
+          <div class="form-section">
+            <div class="form-section-title">
+              <h3>家庭成員</h3>
+              <button type="button" class="text-button" id="add-member-btn">
+                <svg class="icon-svg sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                新增成員
+              </button>
+            </div>
+            <div id="members-container" class="dynamic-rows"></div>
+          </div>
+
+          <!-- 通勤地點 -->
+          <div class="form-section">
+            <div class="form-section-title">
+              <h3>主要工作／上學地點（計算通勤依據）</h3>
+              <button type="button" class="text-button" id="add-commute-btn">
+                <svg class="icon-svg sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                新增地點
+              </button>
+            </div>
+            <div id="commute-container" class="dynamic-rows"></div>
+          </div>
+
+          <!-- 目前居住地 -->
+          <div class="form-section">
+            <h3>目前居住地與生活圈</h3>
+            <div class="form-grid-2">
+              <label>目前居住地<input name="currentAddress" placeholder="例如：新北市中和區景平路" /></label>
+              <label>熟悉生活圈<input name="currentArea" placeholder="例如：南勢角、景安生活圈" /></label>
+            </div>
+          </div>
+
+          <!-- 月收入組成 -->
+          <div class="form-section">
+            <h3>家庭月收入組成（評估租金負擔比例）</h3>
+            <div class="form-grid-3">
+              <label>主要收入 1 (元)<input name="income1" type="number" placeholder="55000" /></label>
+              <label>主要收入 2 (元)<input name="income2" type="number" placeholder="48000" /></label>
+              <label>其他/津貼收入<input name="incomeOther" placeholder="額外兼職與津貼約 8000/月" /></label>
+            </div>
+          </div>
+
+          <!-- 核心需求勾選 -->
+          <div class="form-section">
+            <h3>核心需求（勾選適用項目）</h3>
+            <div class="checkbox-grid" id="requirements-checkboxes">
+              <label class="checkbox-item"><input type="checkbox" name="req" value="申請租屋補貼" checked /> 申請租屋補貼</label>
+              <label class="checkbox-item"><input type="checkbox" name="req" value="需入戶籍" checked /> 需入戶籍</label>
+              <label class="checkbox-item"><input type="checkbox" name="req" value="注重孩童學區教育" checked /> 注重孩童學區教育</label>
+              <label class="checkbox-item"><input type="checkbox" name="req" value="家庭空間充足" checked /> 家庭空間充足</label>
+              <label class="checkbox-item"><input type="checkbox" name="req" value="通勤時間不要太長" checked /> 通勤時間不要太長</label>
+              <label class="checkbox-item"><input type="checkbox" name="req" value="需要平面車位" checked /> 需要平面車位</label>
+              <label class="checkbox-item"><input type="checkbox" name="req" value="需要電梯" checked /> 需要電梯</label>
+              <label class="checkbox-item"><input type="checkbox" name="req" value="需有天然瓦斯" /> 需有天然瓦斯</label>
+              <label class="checkbox-item"><input type="checkbox" name="req" value="可接受老屋" /> 可接受老屋</label>
+            </div>
+          </div>
+
+          <div class="dialog-actions">
+            <button type="button" class="outline-button" id="load-sample-household-btn">帶入示範家庭範例</button>
+            <button type="submit" class="primary-button">儲存家庭資料</button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+
+    <!-- ========================================== -->
+    <!-- 彈窗 2: 物件資料與看房筆記 (Property Editor) -->
+    <!-- ========================================== -->
+    <dialog id="property-dialog">
+      <div class="dialog-content large">
+        <div class="dialog-header">
+          <div>
+            <p class="eyebrow">PROPERTY DETAILS & PERSONAL NOTES</p>
+            <h2 id="property-dialog-title">編輯物件資料與筆記</h2>
+          </div>
+          <button class="dialog-close" type="button" id="close-property-btn" aria-label="關閉">
+            <svg class="icon-svg" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <form id="property-form">
+          <input type="hidden" name="id" id="prop-id" />
+
+          <!-- A. 客觀資料區塊 (傳送給 AI 比較) -->
+          <div class="editor-section objective-block">
+            <div class="section-badge-header">
+              <span class="badge badge-objective">客觀資料（傳送給 AI 比較）</span>
+              <small>精確填寫有助於 AI 計算租金負擔、學區與通勤</small>
+            </div>
+
+            <div class="form-grid-3">
+              <label>物件名稱 *<input name="name" placeholder="例如：01 青山綠境、02 碧波水漾" required /></label>
+              <label>物件型態 *
+                <select name="type" required>
+                  <option value="電梯大樓">電梯大樓</option>
+                  <option value="無電梯公寓">無電梯公寓</option>
+                  <option value="華廈">華廈</option>
+                  <option value="透天厝">透天厝</option>
+                  <option value="其他">其他</option>
+                </select>
+              </label>
+              <label>月租金（元）*
+                <div class="input-with-suffix">
+                  <input name="rent" type="number" placeholder="23000" required min="0" />
+                  <span>元 / 月</span>
+                </div>
+              </label>
+            </div>
+
+            <div class="form-grid-3">
+              <label>坪數 *
+                <div class="input-with-suffix">
+                  <input name="size_num" type="number" step="0.1" min="1" placeholder="34" required />
+                  <span>坪</span>
+                </div>
+              </label>
+              <label class="wide-label">格局（房／廳／衛／陽台）
+                <div class="layout-grid-inputs">
+                  <div class="inline-input-group"><input name="layout_rooms" type="number" min="0" max="20" placeholder="3" /><span>房</span></div>
+                  <div class="inline-input-group"><input name="layout_halls" type="number" min="0" max="10" placeholder="2" /><span>廳</span></div>
+                  <div class="inline-input-group"><input name="layout_baths" type="number" min="0" max="10" placeholder="2" /><span>衛</span></div>
+                  <div class="inline-input-group"><input name="layout_balconies" type="number" min="0" max="10" placeholder="1" /><span>陽台</span></div>
+                </div>
+              </label>
+              <label>樓層／總樓層
+                <div class="floor-grid-inputs">
+                  <div class="inline-input-group"><span>第</span><input name="floor_current" type="number" min="-5" max="120" placeholder="10" /><span>樓</span></div>
+                  <span class="floor-divider">/</span>
+                  <div class="inline-input-group"><span>共</span><input name="floor_total" type="number" min="1" max="120" placeholder="18" /><span>樓</span></div>
+                </div>
+              </label>
+            </div>
+
+            <div class="form-grid-3">
+              <label>屋齡
+                <div class="input-with-suffix">
+                  <input name="age_num" type="number" min="0" max="150" placeholder="8" />
+                  <span>年 (0=新成屋)</span>
+                </div>
+              </label>
+              <label>管理費
+                <div class="mgmt-fee-group">
+                  <select name="mgmt_mode" id="prop-mgmt-mode">
+                    <option value="included">包含於租金</option>
+                    <option value="extra">需另計（填金額）</option>
+                    <option value="none">無管理費</option>
+                  </select>
+                  <div class="input-with-suffix" id="prop-mgmt-amount-wrap" style="display: none; margin-top: 5px;">
+                    <input name="mgmt_amount" type="number" min="0" placeholder="1800" />
+                    <span>元 / 月</span>
+                  </div>
+                </div>
+              </label>
+              <label>停車位
+                <select name="parkingFee">
+                  <option value="包含 (平面車位)">包含 (平面車位)</option>
+                  <option value="包含 (機械車位)">包含 (機械車位)</option>
+                  <option value="無車位 / 附近好停">無車位 / 附近好停</option>
+                  <option value="另計租金">另計租金</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="form-grid-2">
+              <label>租屋補貼<input name="subsidy" placeholder="例如：可申請、待確認、不可申請" /></label>
+              <label>完整地址（供查核學區與地理）<input name="address" placeholder="例如：231新北市新店區安祥路100號" /></label>
+            </div>
+
+            <div class="form-grid-1">
+              <label>租約條款與維修責任（關鍵責任分析）
+                <textarea name="leaseTerms" rows="2" placeholder="例如：房東附冷氣與家具，修繕依民法自然損耗由房東負責..."></textarea>
+              </label>
+            </div>
+
+            <div class="form-grid-2">
+              <label>具備設施與已知屋況
+                <textarea name="amenities" rows="2" placeholder="例如：社區泳池、健身房、垃圾代收、24H保全、天然瓦斯..."></textarea>
+              </label>
+              <label>交通與學區可驗證備註
+                <textarea name="trafficAndSchool" rows="2" placeholder="例如：近安坑輕軌、社區有接駁公車；雙城國小、安康高中國中部..."></textarea>
+              </label>
+            </div>
+
+            <div class="form-grid-1">
+              <label>公開連結網址（選填）
+                <input name="url" type="url" placeholder="https://..." />
+              </label>
+            </div>
+          </div>
+
+          <!-- B. 主觀意識區塊 (軟性前瞻 SWOT，純本機保存) -->
+          <div class="editor-section subjective-block">
+            <div class="section-badge-header">
+              <span class="badge badge-subjective">我的主觀直覺與前瞻隨筆（純本地保存，AI 絕不讀取）</span>
+              <small>放膽寫下你的真實喜好與最大顧慮</small>
+            </div>
+
+            <div class="form-grid-2">
+              <div>
+                <label>我的直覺喜好評分</label>
+                <div class="stars-picker" id="dialog-stars-picker">
+                  <button type="button" class="star-btn" data-val="1" title="1 星">
+                    <svg class="star-icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                  </button>
+                  <button type="button" class="star-btn" data-val="2" title="2 星">
+                    <svg class="star-icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                  </button>
+                  <button type="button" class="star-btn" data-val="3" title="3 星">
+                    <svg class="star-icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                  </button>
+                  <button type="button" class="star-btn" data-val="4" title="4 星">
+                    <svg class="star-icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                  </button>
+                  <button type="button" class="star-btn" data-val="5" title="5 星">
+                    <svg class="star-icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                  </button>
+                  <span class="star-val-text" id="dialog-star-text">未評分</span>
+                </div>
+                <input type="hidden" name="subj_rating" id="prop-subj-rating" value="0" />
+              </div>
+
+              <div>
+                <label>我的最終決策標記</label>
+                <div class="decision-radios">
+                  <label><input type="radio" name="subj_decision" value="優先考慮" /> 優先考慮</label>
+                  <label><input type="radio" name="subj_decision" value="值得議價" /> 值得議價</label>
+                  <label><input type="radio" name="subj_decision" value="繼續觀察" /> 繼續觀察</label>
+                  <label><input type="radio" name="subj_decision" value="淘汰" /> 淘汰</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <label>最滿意的地方（優勢亮點）
+                <textarea name="subj_pros" rows="2" placeholder="例如：視野山景優美安靜，公設新穎完整，空間住起來很舒服..."></textarea>
+              </label>
+              <label>最在意的缺點（最大顧慮）
+                <textarea name="subj_cons" rows="2" placeholder="例如：尖峰通勤易塞車，管理費每月1800元需另計..."></textarea>
+              </label>
+            </div>
+
+            <!-- 四大面向軟性 SWOT 隨筆 -->
+            <div class="soft-swot-accordion">
+              <p class="swot-title">四大面向觀察前瞻隨筆（現在感受 vs 未來想像）</p>
+
+              <div class="swot-aspects-grid">
+                <!-- 交通 -->
+                <div class="swot-aspect-card">
+                  <div class="swot-aspect-header">
+                    <span>交通面向</span>
+                    <select name="subj_trans_rating">
+                      <option value="">選擇評價</option>
+                      <option value="positive">滿意</option>
+                      <option value="neutral">普通 / 可接受</option>
+                      <option value="negative">不滿意 / 擔憂</option>
+                    </select>
+                  </div>
+                  <div class="swot-inputs">
+                    <input name="subj_trans_now" placeholder="現在感受 (S/W)：例如 社區接駁車到捷運約15分" />
+                    <input name="subj_trans_future" placeholder="未來想像 (O/T)：例如 期待輕軌路網成熟" />
+                  </div>
+                </div>
+
+                <!-- 學區 -->
+                <div class="swot-aspect-card">
+                  <div class="swot-aspect-header">
+                    <span>學區面向</span>
+                    <select name="subj_school_rating">
+                      <option value="">選擇評價</option>
+                      <option value="positive">滿意</option>
+                      <option value="neutral">普通 / 可接受</option>
+                      <option value="negative">不滿意 / 擔憂</option>
+                    </select>
+                  </div>
+                  <div class="swot-inputs">
+                    <input name="subj_school_now" placeholder="現在感受 (S/W)：例如 雙城國小有名額可搭校車" />
+                    <input name="subj_school_future" placeholder="未來想像 (O/T)：例如 國中階段需評估市區就讀" />
+                  </div>
+                </div>
+
+                <!-- 空間屋況 -->
+                <div class="swot-aspect-card">
+                  <div class="swot-aspect-header">
+                    <span>空間屋況面向</span>
+                    <select name="subj_cond_rating">
+                      <option value="">選擇評價</option>
+                      <option value="positive">滿意</option>
+                      <option value="neutral">普通 / 可接受</option>
+                      <option value="negative">不滿意 / 擔憂</option>
+                    </select>
+                  </div>
+                  <div class="swot-inputs">
+                    <input name="subj_cond_now" placeholder="現在感受 (S/W)：例如 屋況新廚衛齊全採光好" />
+                    <input name="subj_cond_future" placeholder="未來想像 (O/T)：例如 社區管委會健全維護佳" />
+                  </div>
+                </div>
+
+                <!-- 周邊氛圍 -->
+                <div class="swot-aspect-card">
+                  <div class="swot-aspect-header">
+                    <span>周邊生活面向</span>
+                    <select name="subj_neigh_rating">
+                      <option value="">選擇評價</option>
+                      <option value="positive">滿意</option>
+                      <option value="neutral">普通 / 可接受</option>
+                      <option value="negative">不滿意 / 擔憂</option>
+                    </select>
+                  </div>
+                  <div class="swot-inputs">
+                    <input name="subj_neigh_now" placeholder="現在感受 (S/W)：例如 山景清幽有超商超市" />
+                    <input name="subj_neigh_future" placeholder="未來想像 (O/T)：例如 休閒品質高但非熱鬧商圈" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-grid-1" style="margin-top: 12px;">
+              <label>其他家庭討論隨筆
+                <textarea name="subj_family" rows="2" placeholder="例如：家人喜歡山景採光與社區大空間，需跟房東討論管理費..."></textarea>
+              </label>
+            </div>
+          </div>
+
+          <div class="dialog-actions">
+            <button type="button" class="outline-button" id="cancel-property-btn">取消</button>
+            <button type="submit" class="primary-button">儲存物件與筆記</button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+
+    <!-- ========================================== -->
+    <!-- 彈窗 3: AI 設定 (Multi-Provider Settings) -->
+    <!-- ========================================== -->
+    <dialog id="settings-dialog">
+      <div class="dialog-content">
+        <div class="dialog-header">
+          <div>
+            <p class="eyebrow">AI PROVIDER & LOCAL ENGINE</p>
+            <h2>AI 分析引擎與資安設定</h2>
+          </div>
+          <button class="dialog-close" type="button" id="close-settings-btn" aria-label="關閉">
+            <svg class="icon-svg" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+        <p class="dialog-description">
+          支援 OpenAI、Google Gemini、Anthropic Claude 與本地 Local LLM（Ollama / LM Studio）。API Key 僅存於本次瀏覽器 Session，伺服器不留存。
+        </p>
+
+        <form id="settings-form">
+          <label>AI 供應商 (Provider)
+            <select name="provider" id="setting-provider">
+              <option value="openai">OpenAI (官方雲端)</option>
+              <option value="gemini">Google Gemini (推薦，經濟快速)</option>
+              <option value="claude">Anthropic Claude (深度推理)</option>
+              <option value="ollama">本地 Ollama (100% 離線隱私)</option>
+              <option value="local">本地 LM Studio / 相容端點</option>
+            </select>
+          </label>
+
+          <label id="setting-apikey-label">API Key
+            <input name="apiKey" id="setting-apikey" type="password" autocomplete="off" placeholder="sk-..." />
+          </label>
+          <small class="field-help" id="setting-apikey-help">使用本地 Ollama / LM Studio 時可免填金鑰。</small>
+
+          <label>模型名稱 (Model)
+            <input name="model" id="setting-model" value="gpt-4o-mini" required />
+          </label>
+
+          <label id="setting-baseurl-label" style="display: none;">API Base URL (自訂端點)
+            <input name="baseUrl" id="setting-baseurl" placeholder="http://localhost:11434/v1" />
+          </label>
+
+          <div class="checkbox-item" style="margin-top: 12px;">
+            <label>
+              <input type="checkbox" name="enableWebSearch" id="setting-websearch" checked />
+              啟用即時公開網路查核（檢索學校額滿公告與公車捷運路線，自動去除門牌號碼以保護隱私）
+            </label>
+          </div>
+
+          <div class="settings-danger-zone">
+            <p><strong>本機資料管理：</strong></p>
+            <button type="button" class="danger-button" id="clear-all-data-btn">清除所有本機資料（重設系統）</button>
+          </div>
+
+          <div class="dialog-actions">
+            <span id="settings-save-status" aria-live="polite"></span>
+            <button type="submit" class="primary-button">儲存本次設定</button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+
+    <!-- 隱藏的 Markdown 檔案上傳 Input -->
+    <input type="file" id="md-file-input" accept=".md,.markdown" style="display: none;" />
+
     <script src="app.js"></script>
   </body>
 </html>
