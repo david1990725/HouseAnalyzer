@@ -913,28 +913,34 @@ function updateProviderFormDisplay(provider) {
     baseUrlLabel.style.display = 'block';
     apiKeyLabel.style.display = 'none';
     apiKeyHelp.textContent = '本地 Ollama 預設端點為 http://localhost:11434/v1，免填金鑰。';
-    if (!modelInput.value || modelInput.value.startsWith('gpt-')) modelInput.value = 'llama3.1';
+    if (!modelInput.value || modelInput.value.startsWith('gpt-') || modelInput.value.startsWith('gemini') || modelInput.value.startsWith('claude')) modelInput.value = 'llama3.1';
   } else if (provider === 'local') {
     baseUrlLabel.style.display = 'block';
     apiKeyLabel.style.display = 'block';
     apiKeyHelp.textContent = 'LM Studio / LocalAI 預設端點為 http://localhost:1234/v1。';
-    if (!modelInput.value || modelInput.value.startsWith('gpt-')) modelInput.value = 'local-model';
+    if (!modelInput.value || modelInput.value.startsWith('gpt-') || modelInput.value.startsWith('gemini') || modelInput.value.startsWith('claude')) modelInput.value = 'local-model';
   } else if (provider === 'gemini') {
     baseUrlLabel.style.display = 'none';
     apiKeyLabel.style.display = 'block';
-    apiKeyHelp.textContent = '請填寫 Google AI Studio API Key (推薦使用 gemini-2.0-flash 或 1.5-pro)。';
-    if (!modelInput.value || modelInput.value.startsWith('gpt-') || modelInput.value === 'llama3.1') modelInput.value = 'gemini-2.0-flash';
+    apiKeyHelp.textContent = '請填寫 Google AI Studio API Key (推薦最新穩定版 gemini-2.5-flash 或旗艦 gemini-2.5-pro)。';
+    if (!modelInput.value || modelInput.value.startsWith('gpt-') || modelInput.value.startsWith('claude') || modelInput.value === 'llama3.1' || modelInput.value === 'gemini-2.0-flash' || modelInput.value === 'gemini-1.5-flash' || modelInput.value === 'gemini-1.5-pro') {
+      modelInput.value = 'gemini-2.5-flash';
+    }
   } else if (provider === 'claude') {
     baseUrlLabel.style.display = 'none';
     apiKeyLabel.style.display = 'block';
-    apiKeyHelp.textContent = '請填寫 Anthropic API Key (如 claude-3-5-sonnet-20241022)。';
-    if (!modelInput.value || modelInput.value.startsWith('gpt-') || modelInput.value.startsWith('gemini')) modelInput.value = 'claude-3-5-sonnet-20241022';
+    apiKeyHelp.textContent = '請填寫 Anthropic API Key (推薦最新 claude-sonnet-4-6 或 claude-opus-4-8)。';
+    if (!modelInput.value || modelInput.value.startsWith('gpt-') || modelInput.value.startsWith('gemini') || modelInput.value === 'llama3.1' || modelInput.value.startsWith('claude-3-5-sonnet') || modelInput.value.startsWith('claude-3-7-sonnet') || modelInput.value.startsWith('claude-3-haiku') || modelInput.value.startsWith('claude-3-opus')) {
+      modelInput.value = 'claude-sonnet-4-6';
+    }
   } else {
     // openai
     baseUrlLabel.style.display = 'none';
     apiKeyLabel.style.display = 'block';
-    apiKeyHelp.textContent = '請填寫 OpenAI API Key (如 gpt-4o-mini 或 gpt-4o)。';
-    if (!modelInput.value || modelInput.value.startsWith('gemini') || modelInput.value.startsWith('claude') || modelInput.value === 'llama3.1') modelInput.value = 'gpt-4o-mini';
+    apiKeyHelp.textContent = '請填寫 OpenAI API Key (推薦 gpt-4o-mini 或旗艦 gpt-4o)。';
+    if (!modelInput.value || modelInput.value.startsWith('gemini') || modelInput.value.startsWith('claude') || modelInput.value === 'llama3.1' || modelInput.value.startsWith('gpt-3.5') || modelInput.value === 'gpt-4') {
+      modelInput.value = 'gpt-4o-mini';
+    }
   }
 }
 

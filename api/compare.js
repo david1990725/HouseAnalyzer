@@ -435,7 +435,7 @@ async function callGemini({ apiKey, model, baseUrl, systemPrompt, userContent })
 
 // --- Anthropic Claude 適配器 ---
 async function callClaude({ apiKey, model, baseUrl, systemPrompt, userContent }) {
-  const targetModel = model || 'claude-3-7-sonnet-latest';
+  const targetModel = model || 'claude-sonnet-4-6';
   const base = baseUrl || 'https://api.anthropic.com/v1';
   const url = new URL(`${base}/messages`);
 
