@@ -84,7 +84,7 @@ const DEFAULT_PROPERTIES = [
     leaseTerms: '房東附全套冷氣與實木家具，租期簽兩年；日常設備自然耗損由房東維修，人為損壞由租客自理。',
     amenities: '社區泳池、健身房、垃圾代收、24H保全管理、天然瓦斯、平面車位；高樓層採光極佳，客廳落地窗面山景。',
     trafficAndSchool: '近安坑輕軌安康站，社區有直達七張捷運站接駁公車；學區為雙城國小、安康高中附設國中部。',
-    url: 'https://sample.houseflow.tw/qingshan',
+    url: 'https://example.com/sample-1',
     subjective: {
       overallRating: 4,
       decision: '值得議價',
@@ -117,7 +117,7 @@ const DEFAULT_PROPERTIES = [
     leaseTerms: '一年一約，水電瓦斯依公營事業帳單自行繳納，退租時需完成基本清潔。',
     amenities: '電梯大樓、天然瓦斯、垃圾冷藏處理、戶數單純一層三戶、主臥有浴缸；現況無附洗衣機需自備。',
     trafficAndSchool: '過重陽橋即到台北市士林區，公車816直達士林捷運站；學區為五華國小（雙語額滿學校）、碧華國中。',
-    url: 'https://sample.houseflow.tw/bibo',
+    url: 'https://example.com/sample-2',
     subjective: {
       overallRating: 5,
       decision: '優先考慮',

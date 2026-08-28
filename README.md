@@ -172,4 +172,4 @@ npm run dev
 
 ## 授權
 
-本專案為開源專案。
+本專案採用 [MIT License](LICENSE) 開源授權。
