@@ -4,8 +4,7 @@
     "module": "CommonJS",
     "moduleResolution": "Node",
     "allowJs": true,
-    "checkJs": true,
-    "strict": false,
+    "checkJs": false,
     "noEmit": true
   },
   "include": [

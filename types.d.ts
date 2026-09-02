@@ -34,7 +34,7 @@ export interface AspectNote {
 
 export interface SubjectiveNotes {
   overallRating?: number;
-  decision?: '優先考慮' | '值得議價' | '列入備選' | '淘汰' | '';
+  decision?: '優先考慮' | '值得議價' | '列入備選' | '淘汰' | (string & {});
   highlightPros?: string;
   dealBreakerCons?: string;
   aspects?: {
