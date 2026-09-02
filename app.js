@@ -1051,7 +1051,6 @@ function updateProviderFormDisplay(provider, preferredModel = null) {
   });
 
   if (!matchFound && preferredModel && preferredModel !== '__custom__') {
-    // 若儲存的舊模型或自訂模型不在列舉中，切換到自訂模式
     modelSelect.value = '__custom__';
     customLabel.style.display = 'block';
     customInput.value = preferredModel;
@@ -1145,163 +1144,332 @@ async function startComparison() {
   }
 }
 
+function getRecLevelBadge(level) {
+  if (!level) return '';
+  let cls = 'consider';
+  if (level.includes('強力推薦')) cls = 'strongly';
+  else if (level.includes('附條件')) cls = 'conditional';
+  else if (level.includes('不建議')) cls = 'not_rec';
+  else if (level.includes('排除') || level.includes('Reject')) cls = 'reject';
+  return `<span class="rec-level-badge ${cls}">${escapeHtml(level)}</span>`;
+}
+
+function getEvidenceStatusBadge(status) {
+  const map = {
+    verified: { label: '已查證 (Verified)', cls: 'verified' },
+    reported: { label: '口頭陳述 (Reported)', cls: 'reported' },
+    observed: { label: '現場觀察 (Observed)', cls: 'observed' },
+    estimated: { label: '合理推估 (Estimated)', cls: 'estimated' },
+    unknown: { label: '尚待查證 (Unknown)', cls: 'unknown' },
+  };
+  const item = map[status] || { label: status, cls: 'unknown' };
+  return `<span class="badge-status ${item.cls}">${item.label}</span>`;
+}
+
+function getConfidenceBadge(conf) {
+  const map = {
+    high: { label: '高信心', cls: 'high' },
+    medium: { label: '中信心', cls: 'medium' },
+    low: { label: '低信心', cls: 'low' },
+  };
+  const item = map[conf] || { label: conf, cls: 'medium' };
+  return `<span class="badge-conf ${item.cls}">● ${item.label}</span>`;
+}
+
+function getCrossCheckItemClass(status) {
+  if (status.includes('證實屬實')) return 'confirmed';
+  if (status.includes('部分證實')) return 'partly';
+  if (status.includes('尚待查證')) return 'unverified';
+  return 'contradicted';
+}
+
 function renderComparisonResult(data, selectedProps) {
-  // ① 先講結論 Hero Rankings
+  // ① 先講結論與客觀推薦等級 (Hero Rankings)
   const rankingsTbody = document.getElementById('rankings-tbody');
+  const scorecards = data.objectiveScorecard || [];
+  const recs = data.objectiveRecommendation || [];
+
   rankingsTbody.innerHTML = (data.conclusionFirst?.rankings || [])
-    .map(
-      (r, idx) => `
-    <tr>
-      <td><span class="rank-badge rank-${idx + 1}">#${idx + 1}</span></td>
-      <td><strong>${escapeHtml(r.propertyName)}</strong></td>
-      <td><span class="rank-score-pill">${Number(r.overallScore || 0).toFixed(1)} / 10</span></td>
-      <td>${escapeHtml(r.verdict)}</td>
-    </tr>
-  `
-    )
+    .map((r, idx) => {
+      const matchSc = scorecards.find((s) => s.propertyName === r.propertyName);
+      const matchRec = recs.find((rec) => rec.propertyName === r.propertyName);
+      const gateStatus = matchSc?.riskGateStatus || '通過 (Clear)';
+      const gateCls = gateStatus.includes('未通過') ? 'blocked' : (gateStatus.includes('條件式') ? 'conditional' : 'clear');
+
+      return `
+        <tr>
+          <td><span class="rank-badge rank-${idx + 1}">#${idx + 1}</span></td>
+          <td><strong>${escapeHtml(r.propertyName)}</strong></td>
+          <td><span class="rank-score-pill">${Number(r.overallScore || 0).toFixed(1)} / 10</span></td>
+          <td>${getRecLevelBadge(matchRec?.recommendationLevel)}</td>
+          <td><span class="risk-gate-tag ${gateCls}">${escapeHtml(gateStatus)}</span></td>
+          <td>${escapeHtml(r.verdict)}</td>
+        </tr>
+      `;
+    })
     .join('');
 
   document.getElementById('caveat-text').textContent = data.conclusionFirst?.caveat || '無額外但書。';
 
-  // ② 深入面向分析 (4 Dimensions)
-  const analysesGrid = document.getElementById('analyses-grid');
-  analysesGrid.innerHTML = (data.propertyAnalyses || [])
-    .map(
-      (pa) => `
-    <article class="prop-analysis-card">
-      <h3 class="prop-analysis-title">${escapeHtml(pa.rankLabel || pa.propertyName)}</h3>
-      <p class="prop-analysis-cost">${escapeHtml(pa.costSummary || '')}</p>
-      
-      <div class="dimensions-list">
-        ${(pa.dimensions || [])
-          .map(
-            (d) => `
-          <div class="dimension-item">
-            <div class="dim-header">
-              <span class="dim-name">${escapeHtml(d.name)}</span>
-              <div class="dim-score-box">
-                ${d.hasWarning ? '<span class="dim-warning-tag">需注意</span>' : ''}
-                <span>${Number(d.score || 0).toFixed(1)}</span>
-              </div>
-            </div>
-            <p class="dim-analysis-text">${escapeHtml(d.analysis)}</p>
-            ${d.keyInsight ? `<div class="dim-insight-quote">關鍵洞察：${escapeHtml(d.keyInsight)}</div>` : ''}
-          </div>
-        `
-          )
-          .join('')}
-      </div>
-    </article>
-  `
-    )
-    .join('');
+  // ② 事實與證據狀態查核表 (Facts & Evidence Audit)
+  const evidenceGrid = document.getElementById('evidence-grid');
+  if (evidenceGrid) {
+    evidenceGrid.innerHTML = (data.factsAndEvidence || [])
+      .map(
+        (fe) => `
+      <article class="evidence-card">
+        <h3 class="evidence-card-title">${escapeHtml(fe.propertyName)}</h3>
+        <table class="evidence-table">
+          <thead>
+            <tr>
+              <th style="width: 28%;">檢核項目</th>
+              <th style="width: 42%;">事實內容</th>
+              <th style="width: 30%;">證據狀態 / 信心</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${(fe.items || [])
+              .map(
+                (it) => `
+              <tr>
+                <td><strong>${escapeHtml(it.item)}</strong></td>
+                <td>${escapeHtml(it.finding)}</td>
+                <td>
+                  ${getEvidenceStatusBadge(it.status)}
+                  <div style="margin-top: 2px;">${getConfidenceBadge(it.confidence)}</div>
+                </td>
+              </tr>
+            `
+              )
+              .join('')}
+          </tbody>
+        </table>
+      </article>
+    `
+      )
+      .join('');
+  }
 
-  // ③ 租金真正的差異
+  // ③ 成本與價值量化 (Financial Cost & Market Conclusion)
   const costTbody = document.getElementById('cost-tbody');
-  costTbody.innerHTML = (data.costComparison?.properties || [])
-    .map(
-      (c) => `
-    <tr>
-      <td><strong>${escapeHtml(c.propertyName)}</strong></td>
-      <td>${escapeHtml(c.originalMonthlyCost)} 元/月</td>
-      <td><strong style="color:var(--accent-emerald)">${escapeHtml(c.estimatedSubsidizedCost)}</strong></td>
-      <td>${escapeHtml(c.note || '')}</td>
-    </tr>
-  `
-    )
+  const costAndValues = data.costAndValue || [];
+  const costProps = data.costComparison?.properties || [];
+
+  costTbody.innerHTML = costProps
+    .map((c) => {
+      const matchCv = costAndValues.find((cv) => cv.propertyName === c.propertyName);
+      return `
+      <tr>
+        <td><strong>${escapeHtml(c.propertyName)}</strong></td>
+        <td>${escapeHtml(matchCv?.monthlyAllInCost || c.originalMonthlyCost + ' 元/月')}</td>
+        <td>${escapeHtml(matchCv?.annualAllInCost || '依月成本推算')}</td>
+        <td>${escapeHtml(matchCv?.unitCostCalculation || '依坪數計算')}</td>
+        <td><strong style="color:var(--accent-emerald)">${escapeHtml(c.estimatedSubsidizedCost)}</strong></td>
+        <td style="font-size:12px; color:var(--text-secondary);">${escapeHtml(matchCv?.marketConclusion || c.note || '')}</td>
+      </tr>
+    `;
+    })
     .join('');
 
   document.getElementById('cost-insight-text').textContent = data.costComparison?.insight || '';
 
-  // ④ 租約與隱性風險
+  // ④ 四面向獨立客觀 SWOT (4-Quadrant Independent SWOT)
+  const swotCardsGrid = document.getElementById('swot-cards-grid');
+  if (swotCardsGrid) {
+    const dimMeta = [
+      { key: 'transport', title: '交通動線與通勤實測' },
+      { key: 'school', title: '學區就讀資格與名額' },
+      { key: 'spaceAndCondition', title: '空間格局與屋況硬體' },
+      { key: 'neighbourhood', title: '周邊生活機能與環境氛圍' },
+    ];
+
+    swotCardsGrid.innerHTML = (data.independentSWOT || [])
+      .map(
+        (sw) => `
+      <article class="swot-card">
+        <div class="swot-card-header">
+          <h3>${escapeHtml(sw.rankLabel || sw.propertyName)}</h3>
+          <span class="subtle" style="font-size: 12px;">四面向獨立客觀推演</span>
+        </div>
+        <div class="swot-dim-container">
+          ${dimMeta
+            .map((dm) => {
+              const d = sw[dm.key] || {};
+              return `
+            <div class="swot-dim-box">
+              <div class="swot-dim-header">
+                <span class="swot-dim-title">${dm.title}</span>
+                <span class="swot-dim-score">${Number(d.score || 0).toFixed(1)} / 10</span>
+              </div>
+              <div class="swot-quadrants">
+                <div class="quadrant-box strengths">
+                  <strong>[S] 已知優勢</strong>
+                  <ul>${(d.strengths || []).map((s) => `<li>${escapeHtml(s)}</li>`).join('') || '<li>無顯著優勢</li>'}</ul>
+                </div>
+                <div class="quadrant-box weaknesses">
+                  <strong>[W] 既有限制</strong>
+                  <ul>${(d.weaknesses || []).map((w) => `<li>${escapeHtml(w)}</li>`).join('') || '<li>無顯著限制</li>'}</ul>
+                </div>
+                <div class="quadrant-box opportunities">
+                  <strong>[O] 潛在機會</strong>
+                  <ul>${(d.opportunities || []).map((o) => `<li>${escapeHtml(o)}</li>`).join('') || '<li>無特定機會</li>'}</ul>
+                </div>
+                <div class="quadrant-box threats">
+                  <strong>[T] 外部威脅</strong>
+                  <ul>${(d.threats || []).map((t) => `<li>${escapeHtml(t)}</li>`).join('') || '<li>無特定威脅</li>'}</ul>
+                </div>
+              </div>
+              ${d.keyInsight ? `<div class="swot-insight-footer"><strong>關鍵洞察：</strong>${escapeHtml(d.keyInsight)}</div>` : ''}
+            </div>
+          `;
+            })
+            .join('')}
+        </div>
+      </article>
+    `
+      )
+      .join('');
+  }
+
+  // ⑤ 客觀評分卡 7 維度 (7-Dimension Scorecard)
+  const scorecardGrid = document.getElementById('scorecard-grid');
+  if (scorecardGrid) {
+    scorecardGrid.innerHTML = (data.objectiveScorecard || [])
+      .map((sc) => {
+        const gateStatus = sc.riskGateStatus || '通過 (Clear)';
+        const gateCls = gateStatus.includes('未通過') ? 'blocked' : (gateStatus.includes('條件式') ? 'conditional' : 'clear');
+        return `
+      <article class="scorecard-card">
+        <div class="scorecard-header">
+          <h3>${escapeHtml(sc.propertyName)}</h3>
+          <span class="scorecard-total-badge">${Number(sc.weightedTotalScore || 0).toFixed(1)} 總分</span>
+        </div>
+        <div class="scorecard-dims-list">
+          ${(sc.dimensions || [])
+            .map(
+              (dim) => `
+            <div class="scorecard-dim-row">
+              <div class="scorecard-dim-meta">
+                <span>${escapeHtml(dim.dimensionName)} <small style="color:var(--text-muted);">(${escapeHtml(dim.weight || '')})</small></span>
+                <span style="font-family:'DM Mono', monospace; color:var(--accent-emerald);">${Number(dim.score || 0).toFixed(1)}</span>
+              </div>
+              <div class="scorecard-dim-bar-wrap">
+                <div class="scorecard-dim-bar-fill" style="width: ${Math.min(100, Math.max(0, (dim.score || 0) * 10))}%;"></div>
+              </div>
+              <p class="scorecard-dim-rationale">${escapeHtml(dim.rationale)}</p>
+            </div>
+          `
+            )
+            .join('')}
+        </div>
+        <div class="scorecard-footer-gate">
+          <span><strong>風險閘門狀態：</strong></span>
+          <span class="risk-gate-tag ${gateCls}">${escapeHtml(gateStatus)}</span>
+        </div>
+      </article>
+    `;
+      })
+      .join('');
+  }
+
+  // ⑥ 結構化風險分級評估 (4-Tier Risk Assessment)
   const risksGrid = document.getElementById('risks-grid');
-  risksGrid.innerHTML = (data.leaseAndHiddenRisks || [])
-    .map(
-      (r) => `
-    <article class="risk-card">
-      <h3 class="risk-card-title">${escapeHtml(r.propertyName)}</h3>
-      <div class="responsibility-box">
-        <strong>維修責任歸屬：</strong>${escapeHtml(r.maintenanceResponsibility)}
-      </div>
+  if (risksGrid) {
+    risksGrid.innerHTML = (data.riskAssessment || [])
+      .map(
+        (r) => `
+      <article class="risk-card">
+        <h3 class="risk-card-title">${escapeHtml(r.propertyName)}</h3>
+        <div class="responsibility-box">
+          <strong>維修責任歸屬：</strong>${escapeHtml(r.maintenanceResponsibility || '依合約約定')}
+        </div>
 
-      <p class="risk-sub-heading">已觀察到的現況問題：</p>
-      <div class="known-issues-list">
-        ${(r.knownIssues || [])
-          .map(
-            (k) => `
-          <div class="known-issue-item">
-            <span>• ${escapeHtml(k.issue)}</span>
-            <small style="color:${k.status.includes('承諾') || k.status.includes('修好') ? '#186835' : '#a22d22'}">${escapeHtml(k.status)}</small>
-          </div>
-        `
-          )
-          .join('')}
-      </div>
+        <p class="risk-sub-heading">結構化風險評估清單：</p>
+        <div class="risk-items-container">
+          ${(r.risks || [])
+            .map(
+              (rk) => `
+            <div class="risk-detail-box">
+              <div class="risk-detail-header">
+                <strong>${escapeHtml(rk.riskName)}</strong>
+                <span class="risk-grade-badge ${escapeHtml(rk.grade)}">${escapeHtml(rk.grade)}</span>
+              </div>
+              <div class="risk-detail-body">
+                <div>• <strong>證據依據：</strong>${escapeHtml(rk.evidence)}</div>
+                <div>• <strong>潛在後果：</strong>${escapeHtml(rk.consequence)}</div>
+                <div>• <strong>緩解方案 / 責任方：</strong>${escapeHtml(rk.mitigation)} (${escapeHtml(rk.responsibleParty)})</div>
+                <div style="color:#a22d22; margin-top:2px;">• <strong>決策影響：</strong>${escapeHtml(rk.decisionImpact)}</div>
+              </div>
+            </div>
+          `
+            )
+            .join('')}
+        </div>
 
-      <p class="risk-sub-heading" style="margin-top:10px;">合理預期的未來風險：</p>
-      <ul style="padding-left: 18px; font-size: 12px; color: #577069;">
-        ${(r.futureRisks || []).map((fr) => `<li>${escapeHtml(fr)}</li>`).join('')}
-      </ul>
+        <p class="risk-sub-heading" style="margin-top:12px;">隱性維修成本試算：</p>
+        <p style="font-size: 12.5px; color: #4b625b;">${escapeHtml(r.hiddenCostEstimate)}</p>
 
-      <p class="risk-sub-heading" style="margin-top:10px;">隱性維修成本試算：</p>
-      <p style="font-size: 12px; color: #4b625b;">${escapeHtml(r.hiddenCostEstimate)}</p>
+        <div class="risk-verdict-quote">
+          <strong>綜合風險判斷：</strong>${escapeHtml(r.riskVerdict)}
+        </div>
+      </article>
+    `
+      )
+      .join('');
+  }
 
-      <div class="risk-verdict-quote">
-        風險判斷：${escapeHtml(r.riskVerdict)}
-      </div>
-    </article>
-  `
-    )
-    .join('');
+  // ⑦ 主客觀交叉比對驗證 (Resident Cross-Check Matrix)
+  const crosscheckGrid = document.getElementById('crosscheck-grid');
+  if (crosscheckGrid) {
+    crosscheckGrid.innerHTML = (data.residentCrossCheck || [])
+      .map(
+        (rc) => `
+      <article class="crosscheck-card">
+        <h3 class="crosscheck-card-title">${escapeHtml(rc.propertyName)}</h3>
+        <div class="crosscheck-list">
+          ${(rc.checks || [])
+            .map((ck) => {
+              const itemCls = getCrossCheckItemClass(ck.resultStatus);
+              return `
+              <div class="crosscheck-item ${itemCls}">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <strong style="color:var(--primary-dark); font-size:13.5px;">"${escapeHtml(ck.residentItem)}"</strong>
+                  <span class="crosscheck-status-tag ${itemCls}">${escapeHtml(ck.resultStatus)}</span>
+                </div>
+                <p style="font-size:12.5px; color:var(--text-secondary); margin: 6px 0 2px;">
+                  <strong>客觀事實依據：</strong>${escapeHtml(ck.objectiveEvidence)}
+                </p>
+                <p style="font-size:12px; color:#2e4d43; margin:0;">
+                  <strong>決策含義：</strong>${escapeHtml(ck.decisionImplication)}
+                </p>
+              </div>
+            `;
+            })
+            .join('')}
+        </div>
+      </article>
+    `
+      )
+      .join('');
+  }
 
-  // ⑤ 生活策略框架
-  const strategiesGrid = document.getElementById('strategies-grid');
-  strategiesGrid.innerHTML = (data.lifeStrategies || [])
-    .map(
-      (s) => `
-    <article class="strategy-card">
-      <span class="strategy-label">${escapeHtml(s.label || s.emoji || '策略定位')}</span>
-      <h3>${escapeHtml(s.propertyName)}</h3>
-      <p>${escapeHtml(s.strategy)}</p>
-    </article>
-  `
-    )
-    .join('');
-
-  // ⑥ 真正的問題
+  // ⑧ 真正的核心問題 (The Real Question)
   const realQ = data.theRealQuestion || {};
   document.getElementById('reframing-quote').textContent = realQ.reframing || '決策的關鍵在於家庭生活方式的抉擇。';
 
-  document.getElementById('option-a-label').textContent = realQ.optionA?.label || 'A 方案';
+  document.getElementById('option-a-label').textContent = realQ.optionA?.label || '方案 A';
   document.getElementById('option-a-desc').textContent = realQ.optionA?.description || '';
   document.getElementById('option-a-props').innerHTML = (realQ.optionA?.relevantProperties || [])
     .map((p) => `<span class="prop-tag">${escapeHtml(p)}</span>`)
     .join('');
 
-  document.getElementById('option-b-label').textContent = realQ.optionB?.label || 'B 方案';
+  document.getElementById('option-b-label').textContent = realQ.optionB?.label || '方案 B';
   document.getElementById('option-b-desc').textContent = realQ.optionB?.description || '';
   document.getElementById('option-b-props').innerHTML = (realQ.optionB?.relevantProperties || [])
     .map((p) => `<span class="prop-tag">${escapeHtml(p)}</span>`)
     .join('');
 
-  // ⑦ 核心結論
-  const conclusionCards = document.getElementById('conclusion-cards-grid');
-  conclusionCards.innerHTML = (data.overallConclusion || [])
-    .map(
-      (oc) => `
-    <article class="conc-card">
-      <h3>${escapeHtml(oc.rankLabel || oc.propertyName)}</h3>
-      <ul>
-        ${(oc.strengths || []).map((str) => `<li>${escapeHtml(str)}</li>`).join('')}
-      </ul>
-      <div class="conc-risk">最大風險：${escapeHtml(oc.biggestRisk)}</div>
-      <p class="conc-note"><strong>條件建議：</strong>${escapeHtml(oc.conditionalNote)}</p>
-    </article>
-  `
-    )
-    .join('');
-
-  // ⑧ 情境排名
+  // ⑨ 情境優先級排名 (Scenario Rankings)
   const scenariosList = document.getElementById('scenarios-list');
   scenariosList.innerHTML = (data.scenarioRankings || [])
     .map(
@@ -1314,7 +1482,7 @@ function renderComparisonResult(data, selectedProps) {
     )
     .join('');
 
-  // ⑨ 條件式排名反轉
+  // ⑩ 條件式排名反轉 (Rank Reversals)
   const reversalsGrid = document.getElementById('reversals-grid');
   reversalsGrid.innerHTML = (data.rankReversals || [])
     .map(
@@ -1332,11 +1500,27 @@ function renderComparisonResult(data, selectedProps) {
     )
     .join('');
 
-  // ⑩ 決策建議與待查事項 (實地查驗待辦清單 Checklist)
-  document.getElementById('not-rush-callout').textContent = data.decisionAdvice?.shouldNotRush || '請勿急於做決定，先確認關鍵待查事項。';
+  // ⑪ 家庭決策綜合與實地查核行動清單 (Decision Synthesis & Checklist)
+  const synth = data.decisionSynthesis || {};
+  const bestFitEl = document.getElementById('synthesis-best-fit');
+  if (bestFitEl) bestFitEl.textContent = synth.bestFitFor || '綜合考量通勤與空間需求的家庭。';
+
+  const tradeoffsList = document.getElementById('synthesis-tradeoffs-list');
+  if (tradeoffsList) {
+    tradeoffsList.innerHTML = (synth.consciousTradeoffs || [])
+      .map((t) => `<li>${escapeHtml(t)}</li>`)
+      .join('');
+  }
+
+  const negList = document.getElementById('synthesis-negotiation-list');
+  if (negList) {
+    negList.innerHTML = (synth.negotiationPoints || [])
+      .map((n) => `<li>${escapeHtml(n)}</li>`)
+      .join('');
+  }
 
   const checksList = document.getElementById('checks-list');
-  checksList.innerHTML = (data.decisionAdvice?.criticalChecks || [])
+  checksList.innerHTML = (synth.criticalChecks || [])
     .map(
       (ck, i) => `
     <li class="checklist-todo-item">
@@ -1355,9 +1539,9 @@ function renderComparisonResult(data, selectedProps) {
     )
     .join('');
 
-  document.getElementById('final-recommendation-text').textContent = data.decisionAdvice?.finalRecommendation || '';
+  document.getElementById('final-recommendation-text').textContent = synth.finalRecommendation || '';
 
-  // ⑪ 主觀直覺與決策附錄 (純本地對照)
+  // ⑫ 主觀附錄 (純本地對照)
   const subjMatrix = document.getElementById('subjective-matrix');
   subjMatrix.innerHTML = selectedProps
     .map((p) => {

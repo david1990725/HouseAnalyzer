@@ -1994,8 +1994,535 @@ body.is-home-view #app-topbar {
 }
 
 /* ==========================================================================
-   彈窗 Dialogs (寬版桌面設計 & 平滑浮現動態)
+   SKILL.md 核心決策元件樣式 (Evidence, SWOT, Scorecard, Risks, CrossCheck)
    ========================================================================== */
+
+/* ② 事實與證據狀態查核表 */
+.evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 18px;
+  margin-top: 16px;
+}
+
+.evidence-card {
+  background: #fff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow-xs);
+}
+
+.evidence-card-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--primary-dark);
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--surface-muted);
+}
+
+.evidence-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.evidence-table th,
+.evidence-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--surface-muted);
+  text-align: left;
+}
+
+.evidence-table th {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--surface-subtle);
+}
+
+/* 證據狀態標籤 */
+.badge-status {
+  font: 700 11px 'DM Mono', monospace;
+  padding: 2px 7px;
+  border-radius: var(--radius-xs);
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.badge-status.verified {
+  background: rgba(42, 157, 143, 0.15);
+  color: #176043;
+  border: 1px solid rgba(42, 157, 143, 0.35);
+}
+
+.badge-status.reported {
+  background: rgba(233, 151, 56, 0.15);
+  color: #8c550b;
+  border: 1px solid rgba(233, 151, 56, 0.35);
+}
+
+.badge-status.observed {
+  background: rgba(74, 144, 226, 0.15);
+  color: #1a5b9e;
+  border: 1px solid rgba(74, 144, 226, 0.35);
+}
+
+.badge-status.estimated {
+  background: rgba(155, 89, 182, 0.15);
+  color: #6c3483;
+  border: 1px solid rgba(155, 89, 182, 0.35);
+}
+
+.badge-status.unknown {
+  background: rgba(149, 165, 166, 0.2);
+  color: #5d6d7e;
+  border: 1px solid rgba(149, 165, 166, 0.4);
+}
+
+/* 信心度標籤 */
+.badge-conf {
+  font: 700 10.5px 'DM Mono', monospace;
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+.badge-conf.high { color: #186835; }
+.badge-conf.medium { color: #9c6500; }
+.badge-conf.low { color: #a22d22; }
+
+/* ④ 四面向獨立客觀 SWOT (4-Quadrant Grid) */
+.swot-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 22px;
+  margin-top: 16px;
+}
+
+.swot-card {
+  background: #fff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 22px;
+  box-shadow: var(--shadow-xs);
+}
+
+.swot-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--surface-muted);
+}
+
+.swot-card-header h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--primary-dark);
+}
+
+.swot-dim-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.swot-dim-box {
+  background: #fafcfb;
+  border: 1px solid #e1ebe6;
+  border-radius: var(--radius-sm);
+  padding: 14px;
+}
+
+.swot-dim-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.swot-dim-title {
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--primary-dark);
+}
+
+.swot-dim-score {
+  font: 800 14px 'DM Mono', monospace;
+  color: var(--accent-emerald);
+}
+
+.swot-quadrants {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.quadrant-box {
+  padding: 8px 10px;
+  border-radius: var(--radius-xs);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.quadrant-box strong {
+  display: block;
+  font: 800 11px 'DM Mono', monospace;
+  margin-bottom: 4px;
+  letter-spacing: 0.05em;
+}
+
+.quadrant-box ul {
+  padding-left: 14px;
+  margin: 0;
+}
+
+.quadrant-box li {
+  margin-bottom: 3px;
+}
+
+.quadrant-box.strengths {
+  background: rgba(42, 157, 143, 0.08);
+  border: 1px solid rgba(42, 157, 143, 0.2);
+  color: #17543d;
+}
+.quadrant-box.strengths strong { color: #176043; }
+
+.quadrant-box.weaknesses {
+  background: rgba(231, 111, 81, 0.08);
+  border: 1px solid rgba(231, 111, 81, 0.2);
+  color: #8c2a1c;
+}
+.quadrant-box.weaknesses strong { color: var(--accent-coral); }
+
+.quadrant-box.opportunities {
+  background: rgba(52, 152, 219, 0.08);
+  border: 1px solid rgba(52, 152, 219, 0.2);
+  color: #1a5276;
+}
+.quadrant-box.opportunities strong { color: #2980b9; }
+
+.quadrant-box.threats {
+  background: rgba(233, 151, 56, 0.08);
+  border: 1px solid rgba(233, 151, 56, 0.2);
+  color: #7d4904;
+}
+.quadrant-box.threats strong { color: var(--accent-amber); }
+
+.swot-insight-footer {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: #fff;
+  border-left: 3px solid var(--accent-emerald);
+  padding: 5px 8px;
+  border-radius: 0 3px 3px 0;
+}
+
+/* ⑤ 7 維度客觀評分卡 */
+.scorecard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 18px;
+  margin-top: 16px;
+}
+
+.scorecard-card {
+  background: #fff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 22px;
+  box-shadow: var(--shadow-xs);
+}
+
+.scorecard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--surface-muted);
+}
+
+.scorecard-header h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--primary-dark);
+}
+
+.scorecard-total-badge {
+  font: 800 16px 'DM Mono', monospace;
+  color: var(--accent-emerald);
+  background: var(--surface-subtle);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(42, 157, 143, 0.3);
+}
+
+.scorecard-dims-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.scorecard-dim-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.scorecard-dim-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.scorecard-dim-bar-wrap {
+  height: 6px;
+  background: #e8edea;
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.scorecard-dim-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2a9d8f, #cbf135);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.scorecard-dim-rationale {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.scorecard-footer-gate {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.risk-gate-tag {
+  font: 800 11px 'DM Mono', monospace;
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+}
+
+.risk-gate-tag.clear {
+  background: rgba(42, 157, 143, 0.15);
+  color: #176043;
+}
+
+.risk-gate-tag.conditional {
+  background: rgba(233, 151, 56, 0.15);
+  color: #8c550b;
+}
+
+.risk-gate-tag.blocked {
+  background: rgba(231, 111, 81, 0.15);
+  color: #a22d22;
+}
+
+/* ⑥ 結構化風險分級評估 (4-Tier Risk Cards) */
+.risk-grade-badge {
+  font: 800 11px 'DM Mono', monospace;
+  padding: 2px 7px;
+  border-radius: var(--radius-xs);
+  text-transform: uppercase;
+}
+
+.risk-grade-badge.Critical {
+  background: #fde8e7;
+  color: #b71c1c;
+  border: 1px solid rgba(183, 28, 28, 0.4);
+}
+
+.risk-grade-badge.High {
+  background: #fef0e6;
+  color: #d35400;
+  border: 1px solid rgba(211, 84, 0, 0.4);
+}
+
+.risk-grade-badge.Medium {
+  background: #fef9e7;
+  color: #b7950b;
+  border: 1px solid rgba(183, 149, 11, 0.4);
+}
+
+.risk-grade-badge.Low {
+  background: #eaf2f8;
+  color: #2980b9;
+  border: 1px solid rgba(41, 128, 185, 0.4);
+}
+
+.risk-detail-box {
+  background: #fff;
+  border: 1px solid #ebd3cf;
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  font-size: 12.5px;
+}
+
+.risk-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.risk-detail-body {
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+/* ⑦ 主客觀交叉比對驗證 (Resident Cross-Check Matrix) */
+.crosscheck-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 18px;
+  margin-top: 16px;
+}
+
+.crosscheck-card {
+  background: #fff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 22px;
+  box-shadow: var(--shadow-xs);
+}
+
+.crosscheck-card-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--primary-dark);
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--surface-muted);
+}
+
+.crosscheck-item {
+  border-left: 3px solid var(--border-light);
+  padding: 8px 12px;
+  background: #fdfdfd;
+  border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.crosscheck-item.confirmed {
+  border-left-color: #2a9d8f;
+  background: #f4faf8;
+}
+
+.crosscheck-item.partly {
+  border-left-color: #e99738;
+  background: #fef9f2;
+}
+
+.crosscheck-item.unverified {
+  border-left-color: #95a5a6;
+  background: #f8f9fa;
+}
+
+.crosscheck-item.contradicted {
+  border-left-color: #e76f51;
+  background: #fef5f3;
+}
+
+.crosscheck-status-tag {
+  font: 800 11px 'DM Mono', monospace;
+  padding: 2px 6px;
+  border-radius: 3px;
+  display: inline-block;
+  margin-bottom: 4px;
+}
+
+.crosscheck-status-tag.confirmed { color: #176043; background: #d7ede5; }
+.crosscheck-status-tag.partly { color: #8c550b; background: #fae8ce; }
+.crosscheck-status-tag.unverified { color: #5d6d7e; background: #eaeded; }
+.crosscheck-status-tag.contradicted { color: #a22d22; background: #fadbd8; }
+
+/* ⑪ 決策綜合摘要框 */
+.synthesis-summary-box {
+  background: #fff;
+  border: 1px solid #cfe0d8;
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.synthesis-item strong {
+  color: var(--primary-dark);
+  font-size: 14px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.synthesis-item span {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.synthesis-item ul {
+  padding-left: 20px;
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* 推薦等級 Badge */
+.rec-level-badge {
+  font: 800 12px 'DM Mono', monospace;
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+  white-space: nowrap;
+}
+
+.rec-level-badge.strongly {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.rec-level-badge.conditional {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+.rec-level-badge.consider {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+.rec-level-badge.not_rec {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.rec-level-badge.reject {
+  background: #f5c6cb;
+  color: #491217;
+  border: 1px solid #f1b0b7;
+}
+
 dialog {
   border: 0;
   padding: 0;

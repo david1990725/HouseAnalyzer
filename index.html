@@ -449,19 +449,21 @@
           <button class="outline-button" id="error-settings-btn">前往 AI 設定</button>
         </div>
 
-        <!-- 比較分析完整內容容器 (十一大區塊) -->
+        <!-- 比較分析完整內容容器 (SKILL.md 結構化決策模組) -->
         <div class="compare-content" id="compare-content" style="display: none;">
-          <!-- ① 先講結論 -->
+          <!-- ① 先講結論與客觀推薦等級 -->
           <section class="compare-section hero-rankings-section">
-            <p class="eyebrow">EXECUTIVE SUMMARY</p>
-            <h2>綜合評比與定位結論</h2>
+            <p class="eyebrow">EXECUTIVE SUMMARY & RECOMMENDATIONS</p>
+            <h2>綜合評比、客觀建議與定位結論</h2>
             <div class="rankings-table-container">
               <table class="rankings-table" id="rankings-table">
                 <thead>
                   <tr>
                     <th>名次</th>
                     <th>物件名稱</th>
-                    <th>AI 客觀總分</th>
+                    <th>客觀總分</th>
+                    <th>客觀推薦等級</th>
+                    <th>風險閘門</th>
                     <th>核心定位與一句話判斷</th>
                   </tr>
                 </thead>
@@ -473,31 +475,34 @@
                 <svg class="icon-svg" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
               </span>
               <div>
-                <strong>重要但書：</strong>
+                <strong>重要但書與前提：</strong>
                 <p id="caveat-text"></p>
               </div>
             </div>
           </section>
 
-          <!-- ② 各物件深入分析 -->
+          <!-- ② 事實與證據狀態表 (SKILL.md Facts & Evidence) -->
           <section class="compare-section">
-            <p class="eyebrow">DETAILED DIMENSION ANALYSIS</p>
-            <h2>各物件深入面向分析</h2>
-            <div class="analyses-grid" id="analyses-grid"></div>
+            <p class="eyebrow">FACTS & EVIDENCE AUDIT</p>
+            <h2>事實與證據狀態查核表</h2>
+            <p class="subtle-note">依據 SKILL.md 證據標準逐項標記：已查證（官方文件/合約）、口頭陳述（仲介/房東）、現場觀察、合理推估、尚待查證。</p>
+            <div class="evidence-grid" id="evidence-grid"></div>
           </section>
 
-          <!-- ③ 租金真正的差異 -->
+          <!-- ③ 成本與價值量化 (SKILL.md Cost & Value) -->
           <section class="compare-section">
-            <p class="eyebrow">TRUE FINANCIAL COST</p>
-            <h2>租金真正的差異（原始月支出 vs 租補後成本）</h2>
+            <p class="eyebrow">TRUE FINANCIAL COST & VALUE QUANTIFICATION</p>
+            <h2>財務成本量化與可比市場對照</h2>
             <div class="cost-table-container">
               <table class="cost-table" id="cost-table">
                 <thead>
                   <tr>
                     <th>物件名稱</th>
-                    <th>原始月成本（含管/停）</th>
+                    <th>全包月成本（租金+管+停）</th>
+                    <th>年度總負擔</th>
+                    <th>實質每坪成本</th>
                     <th>租補後預估支出</th>
-                    <th>費用與補貼備註</th>
+                    <th>市場行情結論</th>
                   </tr>
                 </thead>
                 <tbody id="cost-tbody"></tbody>
@@ -509,21 +514,38 @@
             </div>
           </section>
 
-          <!-- ④ 租約與隱性風險 -->
+          <!-- ④ 四面向獨立客觀 SWOT (SKILL.md Independent SWOT) -->
           <section class="compare-section">
-            <p class="eyebrow">LEASE & HIDDEN LIABILITIES</p>
-            <h2>租約條款與隱性維修責任分析</h2>
+            <p class="eyebrow">INDEPENDENT 4-DIMENSION SWOT</p>
+            <h2>四面向獨立客觀 SWOT 分析</h2>
+            <p class="subtle-note">客觀鎖定：交通、學區、空間屋況、周邊鄰里。S (既有優勢) / W (既有限制) / O (有條件機會) / T (外部未來威脅)。</p>
+            <div class="swot-cards-grid" id="swot-cards-grid"></div>
+          </section>
+
+          <!-- ⑤ 客觀評分卡 7 維度 (SKILL.md Objective Scorecard) -->
+          <section class="compare-section">
+            <p class="eyebrow">7-DIMENSION OBJECTIVE SCORECARD</p>
+            <h2>客觀加權評分卡（7 大維度標準化）</h2>
+            <div class="scorecard-grid" id="scorecard-grid"></div>
+          </section>
+
+          <!-- ⑥ 結構化風險分級評估 (SKILL.md 4-Tier Risk Grading) -->
+          <section class="compare-section">
+            <p class="eyebrow">STRUCTURED RISK ASSESSMENT</p>
+            <h2>結構化風險分級與隱性維修責任</h2>
+            <p class="subtle-note">風險分級：Critical（一票否決/立即暫緩）/ High（需書面排除）/ Medium（需議價/監控）/ Low（輕微可容忍）。</p>
             <div class="risks-grid" id="risks-grid"></div>
           </section>
 
-          <!-- ⑤ 生活策略框架 -->
+          <!-- ⑦ 主客觀交叉比對驗證 (SKILL.md Resident Assessment Cross-Check) -->
           <section class="compare-section">
-            <p class="eyebrow">LIFE STRATEGY FRAMEWORK</p>
-            <h2>三種完全不同的生活策略選擇</h2>
-            <div class="strategies-grid" id="strategies-grid"></div>
+            <p class="eyebrow">RESIDENTIAL INTUITION VS OBJECTIVE FACTS</p>
+            <h2>主觀感受反向驗證矩陣</h2>
+            <p class="subtle-note">AI 以客觀事實反向檢驗看房主觀筆記，標記：證實屬實、部分證實、尚待查證、事實矛盾偏誤，破除盲點與焦慮。</p>
+            <div class="crosscheck-grid" id="crosscheck-grid"></div>
           </section>
 
-          <!-- ⑥ 真正的問題 -->
+          <!-- ⑧ 真正的核心問題 (The Real Question) -->
           <section class="compare-section real-question-section">
             <p class="eyebrow">THE REAL QUESTION</p>
             <h2>真正的問題：重新定義你的決策核心</h2>
@@ -542,47 +564,56 @@
             </div>
           </section>
 
-          <!-- ⑦ 核心結論 -->
-          <section class="compare-section">
-            <p class="eyebrow">BALANCED CONCLUSION</p>
-            <h2>核心結論：得到什麼 vs 承擔什麼</h2>
-            <div class="conclusion-cards-grid" id="conclusion-cards-grid"></div>
-          </section>
-
-          <!-- ⑧ 情境排名 -->
+          <!-- ⑨ 生活優先順序情境排名 (Scenario Rankings) -->
           <section class="compare-section">
             <p class="eyebrow">SCENARIO RANKINGS</p>
             <h2>生活優先順序不同時的排名變化</h2>
             <div class="scenarios-list" id="scenarios-list"></div>
           </section>
 
-          <!-- ⑨ 條件式排名反轉 -->
+          <!-- ⑩ 條件式排名反轉 (Rank Reversals) -->
           <section class="compare-section">
             <p class="eyebrow">RANK REVERSAL TRIGGERS</p>
             <h2>哪些事實一旦確認，會導致排名大幅反轉？</h2>
             <div class="reversals-grid" id="reversals-grid"></div>
           </section>
 
-          <!-- ⑩ 決策建議與待查事項 -->
+          <!-- ⑪ 家庭決策綜合與實地查核清單 (Decision Synthesis & Checklist) -->
           <section class="compare-section advice-section">
-            <p class="eyebrow">NEXT STEPS & ACTIONABLE CHECKS</p>
-            <h2>決策建議與實地查驗清單</h2>
-            <div class="not-rush-callout" id="not-rush-callout"></div>
-            <div class="checks-container">
-              <h3>看房簽約前必須確認的關鍵問題（可勾選核對）：</h3>
+            <p class="eyebrow">FAMILY DECISION SYNTHESIS & ACTION PLAN</p>
+            <h2>家庭決策綜合與實地查核行動清單</h2>
+            
+            <div class="synthesis-summary-box" id="synthesis-summary-box">
+              <div class="synthesis-item">
+                <strong>最適配群體：</strong>
+                <span id="synthesis-best-fit"></span>
+              </div>
+              <div class="synthesis-item">
+                <strong>家庭必須自覺接受的交換代價：</strong>
+                <ul id="synthesis-tradeoffs-list"></ul>
+              </div>
+              <div class="synthesis-item">
+                <strong>簽約議價時必須爭取的書面條款：</strong>
+                <ul id="synthesis-negotiation-list"></ul>
+              </div>
+            </div>
+
+            <div class="checks-container" style="margin-top: 20px;">
+              <h3>看房簽約前必須實地確認的關鍵問題（可勾選核對）：</h3>
               <ul class="checks-list" id="checks-list"></ul>
             </div>
+
             <div class="final-recommendation-card" id="final-recommendation-card">
-              <span class="rec-badge">AI 最終條件式建議</span>
+              <span class="rec-badge">AI 最終條件式決策建議</span>
               <p id="final-recommendation-text"></p>
             </div>
           </section>
 
-          <!-- ⑪ 主觀附錄 (純本地對照) -->
+          <!-- ⑫ 主觀附錄 (純本地對照) -->
           <section class="compare-section subjective-appendix-section">
-            <p class="eyebrow">YOUR SUBJECTIVE INTUITION</p>
-            <h2>附錄：你的主觀感受與看房筆記對照</h2>
-            <p class="subtle-note">以下為你在各物件記錄的主觀喜好、最滿意亮點、最擔心雷點與四大面向隨筆。AI 比較時會讀取這些筆記來識別你的盲點與偏誤，但不會依據主觀偏好調整客觀評分。此處集中呈現供你列印與家庭討論時綜合對照。</p>
+            <p class="eyebrow">YOUR SUBJECTIVE INTUITION APPENDIX</p>
+            <h2>附錄：你的看房隨筆與主觀打分對照</h2>
+            <p class="subtle-note">以下為你在本機記錄的主觀喜好、最滿意亮點、最擔心雷點與四大面向隨筆，集中呈現供家庭討論對照。</p>
             <div class="subjective-matrix" id="subjective-matrix"></div>
           </section>
 
