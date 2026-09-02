@@ -40,7 +40,7 @@ const STORAGE_KEYS = {
   API_KEY: 'house_analyzer_apikey', // 存於 sessionStorage
 };
 
-// 預設示範家庭資料 (全新去識別化示範背景)
+/** @type {import('./types').Household} 預設示範家庭資料 */
 const DEFAULT_HOUSEHOLD = {
   members: [
     { role: '先生', age: 38, note: '硬體研發工程師' },
@@ -64,7 +64,7 @@ const DEFAULT_HOUSEHOLD = {
   requirements: ['申請租屋補貼', '需入戶籍', '注重孩童學區教育', '家庭空間充足', '需要平面車位', '需要電梯'],
 };
 
-// 預設示範三間物件資料 (新店青山綠境、三重碧波水漾、文山靜巷雅舍)
+/** @type {import('./types').Property[]} 預設示範三間物件資料 */
 const DEFAULT_PROPERTIES = [
   {
     id: 'prop-sample-1',
@@ -167,6 +167,7 @@ const DEFAULT_PROPERTIES = [
   },
 ];
 
+/** @type {import('./types').Household} 空白家庭資料結構 */
 const EMPTY_HOUSEHOLD = {
   members: [],
   commute: [],
@@ -180,6 +181,7 @@ const EMPTY_HOUSEHOLD = {
 };
 
 const HouseholdStore = {
+  /** @returns {import('./types').Household} */
   get() {
     try {
       const raw = localStorage.getItem(STORAGE_KEYS.HOUSEHOLD);
@@ -189,12 +191,14 @@ const HouseholdStore = {
       return { ...EMPTY_HOUSEHOLD };
     }
   },
+  /** @param {import('./types').Household} data */
   save(data) {
     localStorage.setItem(STORAGE_KEYS.HOUSEHOLD, JSON.stringify(data));
   },
 };
 
 const PropertyStore = {
+  /** @returns {import('./types').Property[]} */
   getAll() {
     try {
       const raw = localStorage.getItem(STORAGE_KEYS.PROPERTIES);
@@ -204,12 +208,18 @@ const PropertyStore = {
       return [];
     }
   },
+  /** @param {import('./types').Property[]} list */
   saveAll(list) {
     localStorage.setItem(STORAGE_KEYS.PROPERTIES, JSON.stringify(list));
   },
+  /**
+   * @param {string} id
+   * @returns {import('./types').Property | undefined}
+   */
   getById(id) {
     return this.getAll().find((p) => p.id === id);
   },
+  /** @param {import('./types').Property} prop */
   save(prop) {
     const list = this.getAll();
     const idx = list.findIndex((p) => p.id === prop.id);
@@ -220,6 +230,7 @@ const PropertyStore = {
     }
     this.saveAll(list);
   },
+  /** @param {string} id */
   delete(id) {
     const list = this.getAll().filter((p) => p.id !== id);
     this.saveAll(list);
@@ -227,6 +238,7 @@ const PropertyStore = {
 };
 
 const ReportStore = {
+  /** @returns {import('./types').ReportRecord[]} */
   getAll() {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.REPORTS);
@@ -235,9 +247,17 @@ const ReportStore = {
       return [];
     }
   },
+  /**
+   * @param {string} id
+   * @returns {import('./types').ReportRecord | null}
+   */
   getById(id) {
     return this.getAll().find((r) => r.id === id) || null;
   },
+  /**
+   * @param {import('./types').ReportRecord} report
+   * @returns {import('./types').ReportRecord}
+   */
   save(report) {
     const list = this.getAll();
     const existingIndex = list.findIndex((r) => r.id === report.id);
@@ -249,6 +269,7 @@ const ReportStore = {
     localStorage.setItem(STORAGE_KEYS.REPORTS, JSON.stringify(list));
     return report;
   },
+  /** @param {string} id */
   delete(id) {
     const list = this.getAll().filter((r) => r.id !== id);
     localStorage.setItem(STORAGE_KEYS.REPORTS, JSON.stringify(list));
@@ -1190,6 +1211,11 @@ function getCrossCheckItemClass(status) {
   return 'contradicted';
 }
 
+/**
+ * 渲染 12 大結構化決策分析報告
+ * @param {import('./types').ComparisonResult} data
+ * @param {import('./types').Property[]} selectedProps
+ */
 function renderComparisonResult(data, selectedProps) {
   // ① 先講結論與客觀推薦等級 (Hero Rankings)
   const rankingsTbody = document.getElementById('rankings-tbody');
