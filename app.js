@@ -1109,9 +1109,16 @@ async function startComparison() {
       }),
     });
 
-    const data = await response.json();
+    const rawText = await response.text();
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      throw new Error(rawText.slice(0, 200) || `伺服器回傳狀態 HTTP ${response.status}`);
+    }
+
     if (!response.ok || data.error) {
-      throw new Error(data.error || '比較分析失敗');
+      throw new Error(data.error || `分析失敗 (HTTP ${response.status})`);
     }
 
     State.lastComparisonResult = data;
